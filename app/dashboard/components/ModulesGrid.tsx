@@ -36,7 +36,7 @@ const MODULES: ModuleItem[] = [
     description:
       "Front desk, rooms, housekeeping, maintenance, F&B, folios & reports.",
     icon: <Home className="w-6 h-6" />,
-    path: "/modules/hotel",
+    path: "/dashboard/hotel",
     tag: "Core",
   },
   {
@@ -45,7 +45,7 @@ const MODULES: ModuleItem[] = [
     description:
       "Vehicle booking, drivers, fleet tracking and billing automation.",
     icon: <Truck className="w-6 h-6" />,
-    path: "/modules/transport",
+    path: "/dashboard/transport",
     tag: "Logistics",
   },
   {
@@ -53,7 +53,7 @@ const MODULES: ModuleItem[] = [
     title: "Aviation & Overseas Services",
     description: "Air ticketing, visas, manpower & compliance workflows.",
     icon: <Plane className="w-6 h-6" />,
-    path: "/modules/aviation",
+    path: "/dashboard/aviation",
     tag: "Travel",
   },
   {
@@ -62,7 +62,7 @@ const MODULES: ModuleItem[] = [
     description:
       "Tenant portals, rent collection, maintenance & utilities billing.",
     icon: <Layers className="w-6 h-6" />,
-    path: "/modules/property",
+    path: "/dashboard/property",
     tag: "Real Estate",
   },
   {
@@ -71,7 +71,7 @@ const MODULES: ModuleItem[] = [
     description:
       "Facility booking, access control, community services & IoT integration.",
     icon: <Grid className="w-6 h-6" />,
-    path: "/modules/city",
+    path: "/dashboard/city",
     tag: "Urban",
   },
   {
@@ -80,7 +80,7 @@ const MODULES: ModuleItem[] = [
     description:
       "Course management, exams, certifications, student & instructor flows.",
     icon: <BookOpen className="w-6 h-6" />,
-    path: "/modules/training",
+    path: "/dashboard/training",
     tag: "Training",
   },
   {
@@ -89,7 +89,7 @@ const MODULES: ModuleItem[] = [
     description:
       "Full ERP finance: GL, invoices, payroll, attendance & recruitment.",
     icon: <FileText className="w-6 h-6" />,
-    path: "/modules/accounting-hr",
+    path: "/dashboard/accounting-hr",
     tag: "Finance",
   },
   {
@@ -98,7 +98,7 @@ const MODULES: ModuleItem[] = [
     description:
       "Unified dashboard, roles & permissions, notifications, API integrations.",
     icon: <CalendarDays className="w-6 h-6" />,
-    path: "/modules/core",
+    path: "/dashboard/core",
     tag: "Platform",
   },
 ];
