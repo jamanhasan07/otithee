@@ -13,11 +13,12 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname() ?? "";
   const isHotelRoute = pathname.startsWith("/dashboard/hotel");
+  const isTransport = pathname.startsWith("/dashboard/transport");
 
   return (
     <div className="min-h-screen flex bg-background">
       {/* Only show global AppSidebar when NOT on hotel routes */}
-      {!isHotelRoute && (
+      {!isHotelRoute && !isTransport && (
         <aside className="w-72 flex-shrink-0 h-screen overflow-y-auto border-r bg-white">
           <AppSidebar modules={DEFAULT_MODULES} />
         </aside>

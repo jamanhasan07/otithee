@@ -312,3 +312,64 @@ export const HOTEL_MODULES: ModuleGroup[] = [
     ],
   },
 ];
+
+
+
+// Transport-specific modules (sidebar for /dashboard/transport)
+export const TRANSPORT_MODULES: ModuleGroup[] = [
+  {
+    id: "transport",
+    title: "Ride Sharing & Transportation",
+    icon: <Truck className="w-5 h-5" />,
+    items: [
+      { title: "Overview", href: "/dashboard/transport" },
+      { title: "Ride Booking (On-demand)", href: "/dashboard/transport/ride-booking" },
+      { title: "Scheduled Trips", href: "/dashboard/transport/scheduled" },
+      { title: "Live Tracking (GPS)", href: "/dashboard/transport/live-tracking" },
+      { title: "Drivers", href: "/dashboard/transport/drivers" },
+      { title: "Driver Roster & Assignment", href: "/dashboard/transport/drivers/assignments" },
+      { title: "Fleet Management", href: "/dashboard/transport/fleet" },
+      { title: "Maintenance & Inspections", href: "/dashboard/transport/fleet/maintenance" },
+      { title: "Fuel Logs", href: "/dashboard/transport/fleet/fuel-logs" },
+      { title: "Fare & Billing", href: "/dashboard/transport/billing" },
+      { title: "Trip History & Analytics", href: "/dashboard/transport/analytics" },
+      { title: "Reports", href: "/dashboard/transport/reports" },
+    ],
+  },
+
+  // Optional: smaller groups for focused sub-sidebars
+  {
+    id: "transport-fleet",
+    title: "Fleet & Maintenance",
+    icon: <Truck className="w-5 h-5" />,
+    items: [
+      { title: "Fleet Overview", href: "/dashboard/transport/fleet" },
+      { title: "Maintenance Work Orders", href: "/dashboard/transport/fleet/maintenance" },
+      { title: "Inspection Logs", href: "/dashboard/transport/fleet/inspections" },
+      { title: "Fuel & Expense Logs", href: "/dashboard/transport/fleet/fuel-logs" },
+    ],
+  },
+
+  {
+    id: "transport-ops",
+    title: "Operations",
+    icon: <ChevronRight className="w-5 h-5" />,
+    items: [
+      { title: "Dispatch Board", href: "/dashboard/transport/ops/dispatch" },
+      { title: "Driver Assignments", href: "/dashboard/transport/ops/assignments" },
+      { title: "Schedules", href: "/dashboard/transport/ops/schedules" },
+    ],
+  },
+
+  {
+    id: "transport-billing",
+    title: "Billing & Analytics",
+    icon: <FileText className="w-5 h-5" />,
+    items: [
+      { title: "Fare Rules & Setup", href: "/dashboard/transport/billing/fare-setup" },
+      { title: "Invoices & Payments", href: "/dashboard/transport/billing/invoices" },
+      { title: "Trip Analytics", href: "/dashboard/transport/analytics" },
+      { title: "Revenue Reports", href: "/dashboard/transport/reports/revenue" },
+    ],
+  },
+];

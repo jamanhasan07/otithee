@@ -110,7 +110,7 @@ export default function ModulesGrid() {
     <div className="px-4 py-6">
       <h2 className="text-2xl font-semibold mb-4">Otithee ERP — Modules</h2>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 ">
         {MODULES.map((m) => (
           <Card
             key={m.id}
