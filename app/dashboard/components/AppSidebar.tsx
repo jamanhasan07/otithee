@@ -1,10 +1,9 @@
-// components/AppSidebar.tsx
 "use client";
 
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils"; // optional helper for classes
+import { cn } from "@/lib/utils";
 import type { ModuleGroup } from "@/lib/modules";
 
 export default function AppSidebar({ modules }: { modules?: ModuleGroup[] }) {
@@ -19,17 +18,20 @@ export default function AppSidebar({ modules }: { modules?: ModuleGroup[] }) {
     return s;
   }, [groups, pathname]);
 
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(initialState);
+  const [openGroups, setOpenGroups] =
+    useState<Record<string, boolean>>(initialState);
 
-  const toggleGroup = (id: string) => setOpenGroups((p) => ({ ...p, [id]: !p[id] }));
+  const toggleGroup = (id: string) =>
+    setOpenGroups((p) => ({ ...p, [id]: !p[id] }));
 
-  const isActive = (href?: string) => (href ? pathname === href || pathname?.startsWith(href) : false);
+  const isActive = (href?: string) =>
+    href ? pathname === href || pathname?.startsWith(href) : false;
 
   return (
     <nav className="px-2">
-      <div className="py-4 px-2 text-center">
+      <Link href={'/dashboard'} className="py-4 px-2 text-center">
         <div className="text-2xl font-bold text-blue-600">Otithee</div>
-      </div>
+      </Link>
 
       <div className="space-y-2">
         {groups.map((group) => {
@@ -56,12 +58,18 @@ export default function AppSidebar({ modules }: { modules?: ModuleGroup[] }) {
                       href={item.href ?? "#"}
                       className={cn(
                         "block px-3 py-2 rounded text-sm",
-                        isActive(item.href) ? "bg-blue-600 text-white" : "hover:bg-muted/50"
+                        isActive(item.href)
+                          ? "bg-blue-600 text-white"
+                          : "hover:bg-muted/50"
                       )}
                     >
                       <div className="flex justify-between items-center">
                         <span>{item.title}</span>
-                        {item.badge ? <span className="text-xs px-2 py-0.5 rounded bg-muted">{item.badge}</span> : null}
+                        {item.badge ? (
+                          <span className="text-xs px-2 py-0.5 rounded bg-muted">
+                            {item.badge}
+                          </span>
+                        ) : null}
                       </div>
                     </Link>
                   ))}

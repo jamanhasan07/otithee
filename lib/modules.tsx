@@ -149,13 +149,166 @@ export const DEFAULT_MODULES: ModuleGroup[] = [
 export const HOTEL_MODULES: ModuleGroup[] = [
   {
     id: "hotel",
-    title: "Hotel",
+    title: "Hotel & Resort Management",
     icon: <Layers className="w-5 h-5" />,
     items: [
       { title: "Overview", href: "/dashboard/hotel" },
       { title: "Rooms", href: "/dashboard/hotel/rooms" },
       { title: "Housekeeping", href: "/dashboard/hotel/housekeeping" },
       { title: "Maintenance", href: "/dashboard/hotel/maintenance" },
+    ],
+  },
+  {
+    id: "frontdesk",
+    title: "Front Desk & Reservations",
+    icon: <Layers className="w-5 h-5" />,
+    items: [
+      {
+        title: "Walk-in & Phone Reservations",
+        href: "/dashboard/hotel/frontdesk/walkin",
+      },
+      {
+        title: "Check-in / Check-out",
+        href: "/dashboard/hotel/frontdesk/checkin",
+      },
+      {
+        title: "Guest Stay Management",
+        href: "/dashboard/hotel/frontdesk/stay",
+      },
+      {
+        title: "Room Assignment",
+        href: "/dashboard/hotel/frontdesk/assignment",
+      },
+      {
+        title: "Folio Creation & Updates",
+        href: "/dashboard/hotel/frontdesk/folio",
+      },
+    ],
+  },
+
+  {
+    id: "roominventory",
+    title: "Room Inventory",
+    icon: <Layers className="w-5 h-5" />,
+    items: [
+      { title: "Room Status", href: "/dashboard/hotel/rooms/status" }, // Vacant / Occupied / Dirty / OOS
+      { title: "Room Types & Rates", href: "/dashboard/hotel/rooms/types" },
+      {
+        title: "Floor & Building Mapping",
+        href: "/dashboard/hotel/rooms/floors",
+      },
+    ],
+  },
+
+  {
+    id: "housekeeping",
+    title: "Housekeeping",
+    icon: <Layers className="w-5 h-5" />,
+    items: [
+      { title: "Task Assignment", href: "/dashboard/hotel/housekeeping/tasks" },
+      {
+        title: "Task Scheduling",
+        href: "/dashboard/hotel/housekeeping/schedule",
+      },
+      { title: "Status Updates", href: "/dashboard/hotel/housekeeping/status" },
+      {
+        title: "Turnover Tracking",
+        href: "/dashboard/hotel/housekeeping/turnover",
+      },
+    ],
+  },
+
+  {
+    id: "maintenance",
+    title: "Maintenance / Engineering",
+    icon: <Layers className="w-5 h-5" />,
+    items: [
+      { title: "Work Orders", href: "/dashboard/hotel/maintenance/workorders" },
+      { title: "Issue Tracking", href: "/dashboard/hotel/maintenance/issues" },
+      {
+        title: "Asset Management",
+        href: "/dashboard/hotel/maintenance/assets",
+      },
+      {
+        title: "Technician Assignment",
+        href: "/dashboard/hotel/maintenance/technicians",
+      },
+    ],
+  },
+
+  {
+    id: "fnb",
+    title: "Food & Beverage (F&B) + POS",
+    icon: <Layers className="w-5 h-5" />,
+    items: [
+      { title: "POS Billing", href: "/dashboard/hotel/fnb/pos" },
+      { title: "Menu Setup", href: "/dashboard/hotel/fnb/menu" },
+      { title: "KOT / BOT Management", href: "/dashboard/hotel/fnb/kotbot" },
+      { title: "Post to Guest Folio", href: "/dashboard/hotel/fnb/postings" },
+    ],
+  },
+
+  {
+    id: "billing",
+    title: "Billing & Folios",
+    icon: <Layers className="w-5 h-5" />,
+    items: [
+      { title: "Folio Management", href: "/dashboard/hotel/billing/folios" },
+      { title: "Room Charges", href: "/dashboard/hotel/billing/roomcharges" },
+      { title: "Additional Charges", href: "/dashboard/hotel/billing/addons" },
+      {
+        title: "Payments & Tax Handling",
+        href: "/dashboard/hotel/billing/payments",
+      },
+    ],
+  },
+
+  {
+    id: "inventory",
+    title: "Inventory & Purchasing",
+    icon: <Layers className="w-5 h-5" />,
+    items: [
+      {
+        title: "Stock & Consumables",
+        href: "/dashboard/hotel/inventory/stocks",
+      },
+      { title: "Item Tracking", href: "/dashboard/hotel/inventory/items" },
+      { title: "Purchase Orders", href: "/dashboard/hotel/inventory/po" },
+    ],
+  },
+
+  {
+    id: "staff",
+    title: "Staff & Role Management",
+    icon: <Layers className="w-5 h-5" />,
+    items: [
+      { title: "User Accounts", href: "/dashboard/hotel/staff/users" },
+      { title: "Roles & Permissions", href: "/dashboard/hotel/staff/roles" },
+      { title: "Duty Roster", href: "/dashboard/hotel/staff/roster" },
+    ],
+  },
+
+  {
+    id: "reports",
+    title: "Reports & Analytics",
+    icon: <Layers className="w-5 h-5" />,
+    items: [
+      {
+        title: "Occupancy Reports",
+        href: "/dashboard/hotel/reports/occupancy",
+      },
+      {
+        title: "Daily Revenue Reports",
+        href: "/dashboard/hotel/reports/revenue",
+      },
+      {
+        title: "Housekeeping Performance",
+        href: "/dashboard/hotel/reports/housekeeping",
+      },
+      {
+        title: "Department Summaries",
+        href: "/dashboard/hotel/reports/department",
+      },
     ],
   },
 ];

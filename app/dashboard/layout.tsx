@@ -1,4 +1,3 @@
-// app/dashboard/layout.tsx
 "use client";
 
 import React from "react";
@@ -7,8 +6,11 @@ import { usePathname } from "next/navigation";
 import { DEFAULT_MODULES } from "@/lib/modules";
 import AppSidebar from "./components/AppSidebar";
 
-
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname() ?? "";
   const isHotelRoute = pathname.startsWith("/dashboard/hotel");
 
@@ -21,9 +23,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </aside>
       )}
 
-      <main className="flex-1 min-h-screen overflow-auto">
-        {children}
-      </main>
+      <main className="flex-1 min-h-screen overflow-auto">{children}</main>
     </div>
   );
 }
