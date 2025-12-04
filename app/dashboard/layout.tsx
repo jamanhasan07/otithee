@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 
 import { DEFAULT_MODULES } from "@/lib/modules";
 import AppSidebar from "./components/AppSidebar";
+import Profile from "./components/Profile";
+import Header from "./components/Header";
 
 export default function DashboardLayout({
   children,
@@ -16,9 +18,6 @@ export default function DashboardLayout({
   const isTransport = pathname.startsWith("/dashboard/transport");
 
   return (
-    
-    
-    
     <div className="min-h-screen flex bg-background">
       {/* Only show global AppSidebar when NOT on hotel routes */}
       {!isHotelRoute && !isTransport && (
@@ -27,7 +26,9 @@ export default function DashboardLayout({
         </aside>
       )}
 
-      <main className="flex-1 min-h-screen overflow-auto">{children}</main>
+      <Header></Header>
+
+      <main className="flex-1 min-h-screen overflow-auto ">{children}</main>
     </div>
   );
 }

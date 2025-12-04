@@ -107,7 +107,7 @@ export default function ModulesGrid() {
   const router = useRouter();
 
   return (
-    <div className="px-4 py-6">
+    <div className="px-4 py-6 mt-16">
       <h2 className="text-2xl font-semibold mb-4">Otithee ERP — Modules</h2>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 ">

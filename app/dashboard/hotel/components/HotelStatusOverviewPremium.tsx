@@ -222,8 +222,9 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f3f6f9] text-slate-900">
-      <div className="max-w-[1400px] mx-auto grid grid-cols-12 gap-6">
+    <div className="min-h-screen  text-slate-900">
+      <div className=" mx-auto grid grid-cols-12 gap-6">
+          <h1 className="text-xl font-semibold">Dashboard</h1>
         {/* Main area */}
         <main className="col-span-12">
           {/* Top KPI pills (colorful) */}
@@ -231,7 +232,7 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
             {metrics.map((kpi) => (
               <div
                 key={kpi.id}
-                className="rounded-2xl p-5 text-white shadow-lg"
+                className="rounded-2xl p-5 text-white shadow-lg  "
                 style={{
                   background: `linear-gradient(90deg, ${kpi.gradient[0]}, ${kpi.gradient[1]})`,
                 }}
