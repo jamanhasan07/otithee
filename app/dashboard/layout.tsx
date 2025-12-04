@@ -16,6 +16,9 @@ export default function DashboardLayout({
   const isTransport = pathname.startsWith("/dashboard/transport");
 
   return (
+    
+    
+    
     <div className="min-h-screen flex bg-background">
       {/* Only show global AppSidebar when NOT on hotel routes */}
       {!isHotelRoute && !isTransport && (

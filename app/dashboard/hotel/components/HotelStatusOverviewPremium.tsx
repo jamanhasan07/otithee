@@ -1,17 +1,17 @@
-// components/HotelStatusOverviewPremium.tsx
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ChevronUp, ChevronDown, Home, DollarSign, CheckSquare, Wrench, Users } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { DollarSign } from "lucide-react";
 
-/** ---------- utility hooks & small visuals ---------- */
+type Kpi = {
+  id: string;
+  title: string;
+  value: number;
+  color: string;
+  gradient: string[];   // [startColor, endColor]
+  trend: number[];
+};
 
 function useCountUp(target: number, duration = 800) {
   const [num, setNum] = useState(0);
@@ -32,32 +32,139 @@ function useCountUp(target: number, duration = 800) {
   return num;
 }
 
-function ProgressRing({ value = 0, size = 64, stroke = 8, color = "emerald" }: { value?: number; size?: number; stroke?: number; color?: string }) {
+function AreaChart({
+  points = [],
+  color = "#06b6d4",
+  height = 64,
+}: {
+  points?: number[];
+  color?: string;
+  height?: number;
+}) {
+  if (!points || points.length === 0) return null;
+  const max = Math.max(...points);
+  const w = 240;
+  const step = w / Math.max(1, points.length - 1);
+  const path = points
+    .map(
+      (p, i) =>
+        `${i === 0 ? "M" : "L"} ${i * step} ${height - (p / max) * height}`
+    )
+    .join(" ");
+  const area = `${path} L ${w} ${height} L 0 ${height} Z`;
+  const gid = `g_${color.replace("#", "")}`;
+  return (
+    <svg width="100%" viewBox={`0 0 ${w} ${height}`} preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={gid} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.12" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#${gid})`} />
+      <path
+        d={path}
+        fill="none"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function MiniBar({
+  points = [],
+  color = "#10b981",
+  height = 40,
+}: {
+  points?: number[];
+  color?: string;
+  height?: number;
+}) {
+  if (!points || points.length === 0) return null;
+  const max = Math.max(...points);
+  const bw = Math.max(4, Math.floor(96 / points.length) - 2);
+  const viewW = points.length * (bw + 4);
+  return (
+    <svg
+      width="100%"
+      viewBox={`0 0 ${viewW} ${height}`}
+      preserveAspectRatio="xMidYMid meet"
+    >
+      {points.map((p, i) => {
+        const h = Math.round((p / max) * height);
+        const x = i * (bw + 4) + 2;
+        const y = height - h;
+        return (
+          <rect
+            key={i}
+            x={x}
+            y={y}
+            width={bw}
+            height={h}
+            rx={2}
+            fill={color}
+            opacity={0.9}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+function ProgressCircle({
+  value = 0,
+  size = 72,
+  stroke = 8,
+  color = "#10b981",
+}: {
+  value?: number;
+  size?: number;
+  stroke?: number;
+  color?: string;
+}) {
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (Math.max(0, Math.min(100, value)) / 100) * circumference;
-  const colorMap: Record<string, string> = {
-    emerald: "stroke-emerald-500",
-    amber: "stroke-amber-500",
-    rose: "stroke-rose-500",
-    sky: "stroke-sky-500",
-    violet: "stroke-violet-500",
-    slate: "stroke-slate-400",
-  };
-  const strokeClass = colorMap[color] ?? colorMap.slate;
+  const [dash, setDash] = useState(circumference);
+
+  useEffect(() => {
+    const v = Math.max(0, Math.min(100, value));
+    const target = circumference - (v / 100) * circumference;
+
+    let raf = 0;
+    const start = performance.now();
+    const duration = 800;
+    const from = circumference;
+    const diff = target - from;
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      setDash(from + diff * eased);
+      if (t < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [value, circumference]);
 
   return (
-    <svg width={size} height={size} role="img" aria-label={`Progress ${value}%`}>
+    <svg
+      width={size}
+      height={size}
+      role="img"
+      aria-label={`Progress ${value}%`}
+    >
       <g transform={`translate(${size / 2}, ${size / 2})`}>
-        <circle r={radius} fill="none" stroke="rgba(15,23,42,0.06)" strokeWidth={stroke} />
+        <circle r={radius} fill="none" stroke="#eef2f7" strokeWidth={stroke} />
         <circle
           r={radius}
           fill="none"
+          stroke={color}
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={offset}
-          className={`${strokeClass} transition-[stroke-dashoffset] duration-500 ease-out`}
+          strokeDashoffset={dash}
           transform="rotate(-90)"
         />
       </g>
@@ -65,193 +172,447 @@ function ProgressRing({ value = 0, size = 64, stroke = 8, color = "emerald" }: {
   );
 }
 
-/**
- * Responsive mini bar sparkline.
- * Uses viewBox + width="100%" so it scales to its container.
- */
-function MiniBarSparkline({ points = [], width = 96, height = 40 }: { points?: number[]; width?: number; height?: number }) {
-  if (!points || points.length === 0) return null;
-  const max = Math.max(...points, 1);
-  // compute bar width and total width
-  const bw = Math.max(2, Math.floor(width / points.length) - 2);
-  const totalWidth = points.length * (bw + 2) + 2;
-  return (
-    <svg
-      width="100%"
-      viewBox={`0 0 ${totalWidth} ${height}`}
-      height={height}
-      preserveAspectRatio="xMidYMid meet"
-      aria-hidden
-    >
-      {points.map((p, i) => {
-        const h = Math.round((p / max) * height);
-        const x = i * (bw + 2) + 1;
-        const y = height - h;
-        return <rect key={i} x={x} y={y} width={bw} height={h} rx={2} className="fill-current opacity-85" />;
-      })}
-    </svg>
-  );
-}
+export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
+  const metrics : Kpi[] = data ?? [
+    {
+      id: "new-booking",
+      title: "New Booking",
+      value: 872,
+      color: "#06b6d4",
+      gradient: ["#26c6da", "#06b6d4"],
+      trend: [60, 70, 80, 72, 87],
+    },
+    {
+      id: "schedule-room",
+      title: "Schedule Room",
+      value: 285,
+      color: "#10b981",
+      gradient: ["#34d399", "#10b981"],
+      trend: [30, 45, 50, 60, 70],
+    },
+    {
+      id: "check-in",
+      title: "Check In",
+      value: 53,
+      color: "#f97316",
+      gradient: ["#f6ad55", "#f97316"],
+      trend: [10, 20, 30, 45, 53],
+    },
+    {
+      id: "check-out",
+      title: "Check Out",
+      value: 78,
+      color: "#fb7185",
+      gradient: ["#fb7185", "#ef4444"],
+      trend: [20, 30, 40, 55, 78],
+    },
+  ];
 
-const textColor = (color?: string) => {
-  switch (color) {
-    case "emerald":
-      return "text-emerald-600";
-    case "amber":
-      return "text-amber-500";
-    case "rose":
-      return "text-rose-600";
-    case "sky":
-      return "text-sky-500";
-    case "violet":
-      return "text-violet-600";
-    default:
-      return "text-slate-700";
-  }
-};
-
-/** ---------- sample data ---------- */
-type MetricDatum = {
-  id: string;
-  title: string;
-  value: number;
-  suffix?: string;
-  change?: number;
-  trend?: number[];
-  tag?: string;
-  color?: string;
-  showRing?: boolean;
-};
-
-const SAMPLE_DATA: MetricDatum[] = [
-  { id: "occupancy", title: "Occupancy", value: 78, suffix: "%", change: 2.4, trend: [65, 70, 72, 75, 78], tag: "Today", color: "emerald", showRing: true },
-  { id: "revenue", title: "Revenue (Today)", value: 4210, suffix: "৳", change: 4.8, trend: [3800, 3950, 4050, 4150, 4210], tag: "24h", color: "amber" },
-  { id: "housekeeping", title: "Housekeeping Clean %", value: 92, suffix: "%", change: -0.5, trend: [94, 93, 93, 92, 92], tag: "Live", color: "sky" },
-  { id: "maintenance", title: "Open Maintenance", value: 6, change: 0, trend: [7, 6, 6, 6, 6], tag: "Open", color: "rose" },
-  { id: "checkins", title: "Check-ins Today", value: 14, change: 12, trend: [8, 10, 12, 13, 14], tag: "Today", color: "violet" },
-];
-
-/** ---------- main component (fixed layout) ---------- */
-
-export default function HotelStatusOverviewPremium({ data }: { data?: MetricDatum[] }) {
-  const metrics = data ?? SAMPLE_DATA;
-
-  const prepared = useMemo(
-    () =>
-      metrics.map((m) => ({
-        ...m,
-        changeSign: m.change != null ? (m.change > 0 ? "up" : m.change < 0 ? "down" : "same") : "same",
-      })),
-    [metrics]
-  );
+  const stats = {
+    totalSales: {
+      value: 230816,
+      color: "#06b6d4",
+      points: [40, 60, 50, 70, 60, 80],
+    },
+    newCustomers: {
+      value: 2542,
+      color: "#10b981",
+      points: [10, 30, 20, 40, 60, 50],
+    },
+  };
 
   return (
-    <section aria-labelledby="hotel-overview" className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 id="hotel-overview" className="text-2xl font-semibold">
-          Hotel & Resort — Live Overview
-        </h2>
-        <div className="text-sm text-muted-foreground">Updated: just now</div>
-      </div>
+    <div className="min-h-screen bg-[#f3f6f9] text-slate-900">
+      <div className="max-w-[1400px] mx-auto grid grid-cols-12 gap-6">
+        {/* Main area */}
+        <main className="col-span-12">
+          {/* Top KPI pills (colorful) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {metrics.map((kpi) => (
+              <div
+                key={kpi.id}
+                className="rounded-2xl p-5 text-white shadow-lg"
+                style={{
+                  background: `linear-gradient(90deg, ${kpi.gradient[0]}, ${kpi.gradient[1]})`,
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold">{kpi.value}</div>
+                    <div className="text-sm opacity-90">{kpi.title}</div>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
+                    <DollarSign />
+                  </div>
+                </div>
+                <div className="mt-4 h-16">
+                  <AreaChart points={kpi.trend} color={kpi.color} height={40} />
+                </div>
+              </div>
+            ))}
+          </div>
 
-      {/* grid: add min-w-0 to prevent forcing horizontal overflow */}
-      <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 min-w-0">
-        {prepared.map((m, idx) => {
-          const counter = useCountUp(m.value, 900 + idx * 60);
-          const isRing = !!m.showRing;
-          const iconColorClass = textColor(m.color);
-
-          return (
-            <motion.article
-              key={m.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: idx * 0.06 }}
-              whileHover={{ y: -6 }}
-            >
-              {/* Card: vertically fill and space-between so footer sticks to bottom; added overflow-hidden */}
-              <Card className="flex flex-col justify-between h-[200px] rounded-2xl bg-white border shadow-sm hover:shadow-md transition overflow-hidden">
-                <CardContent className="p-4 min-w-0">
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className={`flex-shrink-0 rounded-md p-2 ${iconColorClass} bg-gray-50`}>
-                      {m.id === "occupancy" ? <Home className="w-6 h-6" /> : m.id === "revenue" ? <DollarSign className="w-6 h-6" /> : m.id === "housekeeping" ? <CheckSquare className="w-6 h-6" /> : m.id === "maintenance" ? <Wrench className="w-6 h-6" /> : <Users className="w-6 h-6" />}
+          {/* Main grid: charts + booking list + schedule */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left: large column (charts + table) */}
+            <div className="lg:col-span-2 space-y-6">
+              <Card className="rounded-2xl p-6 bg-white shadow">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <div className="text-sm text-slate-400">Total Sales</div>
+                    <div className="text-2xl font-semibold">
+                      {stats.totalSales.value.toLocaleString()}
                     </div>
+                  </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-sm font-medium truncate">{m.title}</h3>
-                        {m.tag ? <Badge variant="outline" className="text-xs">{m.tag}</Badge> : null}
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <div className="text-sm text-slate-400">
+                        New Customers
                       </div>
-
-                      <div className="mt-3 flex items-center gap-4">
-                        {/* Left block: ring or number (keeps consistent sizing) */}
-                        <div className="flex items-center gap-4 min-w-0">
-                          <div className="flex items-center justify-center min-w-0">
-                            {isRing ? (
-                              <div className="w-20 h-20 flex items-center justify-center">
-                                <div className="relative" style={{ width: 64, height: 64 }}>
-                                  <ProgressRing value={m.value} size={64} stroke={8} color={m.color ?? "emerald"} />
-                                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <div className="text-lg font-semibold leading-none">
-                                      {counter}
-                                      {m.suffix ? <span className="text-xs ml-1">{m.suffix}</span> : null}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">of total</div>
-                                  </div>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="text-2xl font-semibold leading-none">
-                                {counter}
-                                {m.suffix ? <span className="text-sm ml-1">{m.suffix}</span> : null}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* change badge */}
-                          <div className="text-xs min-w-0">
-                            <div className="flex items-center gap-1">
-                              {m.change != null ? (
-                                m.change > 0 ? (
-                                  <span className="inline-flex items-center text-emerald-600">
-                                    <ChevronUp className="w-3 h-3" /> <span className="ml-0.5">{Math.abs(m.change)}%</span>
-                                  </span>
-                                ) : m.change < 0 ? (
-                                  <span className="inline-flex items-center text-rose-600">
-                                    <ChevronDown className="w-3 h-3" /> <span className="ml-0.5">{Math.abs(m.change)}%</span>
-                                  </span>
-                                ) : (
-                                  <span className="text-muted-foreground">No change</span>
-                                )
-                              ) : (
-                                <span className="text-muted-foreground">—</span>
-                              )}
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-1">vs prev period</div>
-                          </div>
-                        </div>
-
-                        {/* Right block: sparkline (shrink on small screens) */}
-                        <div className="ml-auto hidden sm:flex items-center text-muted-foreground min-w-0">
-                          <div className="w-[96px] max-w-[20vw]">
-                            <div style={{ color: "currentColor" }}>
-                              <MiniBarSparkline points={m.trend ?? []} width={96} height={40} />
-                            </div>
-                          </div>
-                        </div>
+                      <div className="text-xl font-semibold">
+                        {stats.newCustomers.value.toLocaleString()}
                       </div>
                     </div>
                   </div>
-                </CardContent>
+                </div>
 
-                <CardFooter className="px-4 py-2">
-                  <div className="text-xs text-muted-foreground">Last 24h · Live</div>
-                </CardFooter>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div
+                    className="col-span-2 p-4 rounded-lg"
+                    style={{
+                      background: "linear-gradient(180deg,#f8feff,#ffffff)",
+                    }}
+                  >
+                    <div className="text-sm text-slate-400 mb-2">
+                      Occupancy Trend
+                    </div>
+                    <div className="h-40">
+                      <AreaChart
+                        points={stats.totalSales.points}
+                        color={stats.totalSales.color}
+                        height={120}
+                      />
+                    </div>
+                  </div>
+                  <div
+                    className="p-4 rounded-lg"
+                    style={{
+                      background: "linear-gradient(180deg,#fff7f0,#ffffff)",
+                    }}
+                  >
+                    <div className="text-sm text-slate-400 mb-2">
+                      Revenue Breakdown
+                    </div>
+                    <div className="h-40">
+                      <MiniBar
+                        points={[30, 20, 40, 25, 50, 35]}
+                        color="#fb7185"
+                        height={120}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <div className="text-sm text-slate-500 mb-3 font-medium">
+                    Booking list
+                  </div>
+                  <div className="bg-white rounded-lg shadow-sm overflow-auto">
+                    <table className="min-w-full text-sm">
+                      <thead className="text-xs text-slate-500">
+                        <tr>
+                          <th className="py-3 text-left px-4">#</th>
+                          <th className="py-3 text-left">Guest</th>
+                          <th className="py-3 text-left">Type of Room</th>
+                          <th className="py-3 text-left">Check In</th>
+                          <th className="py-3 text-left">Check out</th>
+                          <th className="py-3 text-left">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-t">
+                          <td className="py-3 px-4">1</td>
+                          <td>Jordy Astaws</td>
+                          <td>Double Room</td>
+                          <td>01/09/24</td>
+                          <td>02/10/24</td>
+                          <td>
+                            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">
+                              Paid
+                            </span>
+                          </td>
+                        </tr>
+                        <tr className="border-t">
+                          <td className="py-3 px-4">2</td>
+                          <td>Alisa Oon</td>
+                          <td>Double Room</td>
+                          <td>28/09/24</td>
+                          <td>01/10/24</td>
+                          <td>
+                            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">
+                              Paid
+                            </span>
+                          </td>
+                        </tr>
+                        <tr className="border-t">
+                          <td className="py-3 px-4">3</td>
+                          <td>Brigette Guerra</td>
+                          <td>Double Room</td>
+                          <td>23/10/24</td>
+                          <td>22/11/24</td>
+                          <td>
+                            <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs">
+                              Pending
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </Card>
-            </motion.article>
-          );
-        })}
+            </div>
+
+            {/* Right column: calendar + schedule */}
+            <div className="space-y-6">
+              <Card className="rounded-2xl p-4 bg-white shadow">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-medium">Upcoming schedule</h4>
+                  <div className="text-xs text-slate-400">This month</div>
+                </div>
+                <div className="bg-white rounded-lg p-3">
+                  <div className="grid grid-cols-7 gap-2 text-xs text-slate-400">
+                    {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
+                      <div key={d} className="text-center py-2">
+                        {d}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 text-sm text-slate-700">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-cyan-100 text-cyan-700 mr-2">
+                      11
+                    </span>
+                    Review Manual Checkin{" "}
+                    <div className="text-xs text-slate-400">10:30 am</div>
+                  </div>
+                  <div className="mt-3 text-sm text-slate-700">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 text-amber-700 mr-2">
+                      20
+                    </span>
+                    Meeting with Supervisor{" "}
+                    <div className="text-xs text-slate-400">11:00 am</div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="rounded-2xl p-4 bg-white shadow">
+                <h4 className="text-sm font-medium">Today's Revenue</h4>
+                <div className="text-2xl font-semibold mt-2">৳ 123,890</div>
+                <div className="mt-2 text-xs text-slate-400">vs yesterday</div>
+              </Card>
+            </div>
+          </div>
+          <Card className="rounded-2xl p-4 bg-white shadow w-full mt-6">
+            <h3 className="text-lg font-semibold mb-3">
+              Housekeeping — Progress, Plans & Problems
+            </h3>
+
+            {/* Top small rings row (summary KPIs) */}
+            <div className="flex items-center gap-4 mb-4">
+              {[
+                { label: "Happiness", value: 4, color: "#0ea5e9" },
+                { label: "Completion", value: 75, color: "#10b981" },
+                { label: "Overdue", value: 5, color: "#f59e0b" },
+                { label: "Problems", value: 3, color: "#fb7185" },
+              ].map((k, i) => (
+                <div
+                  key={i}
+                  className="flex-1 p-3 bg-[#fbfcfd] rounded-lg flex items-center justify-center"
+                >
+                  <div className="flex items-center gap-3">
+                    <div>
+                      {/* small ring */}
+                      <svg
+                        width="64"
+                        height="64"
+                        viewBox="0 0 64 64"
+                        aria-hidden
+                      >
+                        <circle
+                          cx="32"
+                          cy="32"
+                          r="26"
+                          stroke="#eef2f7"
+                          strokeWidth="6"
+                          fill="none"
+                        />
+                        <circle
+                          cx="32"
+                          cy="32"
+                          r="26"
+                          stroke={k.color}
+                          strokeWidth="6"
+                          strokeLinecap="round"
+                          strokeDasharray={`${
+                            (Math.PI * 2 * 26 * k.value) / 100
+                          } ${Math.PI * 2 * 26}`}
+                          transform="rotate(-90 32 32)"
+                          fill="none"
+                        />
+                        <text
+                          x="32"
+                          y="34"
+                          textAnchor="middle"
+                          className="font-semibold text-slate-700"
+                          fontSize="14"
+                        >
+                          {k.value}
+                          {k.label === "Completion" ? "%" : ""}
+                        </text>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Stacked bar table like Progress/Plans/Problems */}
+            <div className="overflow-auto">
+              <table className="min-w-full text-sm">
+                <thead className="text-xs text-slate-500">
+                  <tr>
+                    <th className="py-2 text-left px-4">Name</th>
+                    <th className="py-2 text-left">Summary</th>
+                    <th className="py-2 text-left">Completion</th>
+                    <th className="py-2 text-left">Overdue</th>
+                    <th className="py-2 text-left">
+                      Progress / Plans / Problems
+                    </th>
+                    <th className="py-2 text-left">Happiness</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    {
+                      name: "Mike",
+                      summary: "Text here",
+                      completion: 50,
+                      overdue: 2,
+                      bars: [7, 1, 3],
+                      happy: 1,
+                    },
+                    {
+                      name: "Ashton",
+                      summary: "Text here",
+                      completion: 20,
+                      overdue: 8,
+                      bars: [3, 12, 4],
+                      happy: 0,
+                    },
+                    {
+                      name: "Devon",
+                      summary: "Text here",
+                      completion: 0,
+                      overdue: 11,
+                      bars: [10, 0, 0],
+                      happy: 1,
+                    },
+                    {
+                      name: "Bill",
+                      summary: "Text here",
+                      completion: 40,
+                      overdue: 3,
+                      bars: [5, 6, 2],
+                      happy: 2,
+                    },
+                    {
+                      name: "James",
+                      summary: "Text here",
+                      completion: 0,
+                      overdue: 0,
+                      bars: [0, 0, 0],
+                      happy: 0,
+                    },
+                  ].map((r, idx) => (
+                    <tr
+                      key={idx}
+                      className={`border-t ${
+                        idx % 2 === 0 ? "bg-white" : "bg-slate-50"
+                      }`}
+                    >
+                      <td className="py-3 px-4 align-top">{r.name}</td>
+                      <td className="py-3 align-top">{r.summary}</td>
+                      <td className="py-3 align-top text-blue-600 font-semibold">
+                        {r.completion ? `${r.completion}%` : "-"}
+                      </td>
+                      <td className="py-3 align-top text-amber-600">
+                        {r.overdue || "-"}
+                      </td>
+                      <td className="py-3 align-top">
+                        <div className="w-full bg-slate-100 h-6 rounded overflow-hidden flex">
+                          {/* bars: progress (blue), plans (green), problems (amber) */}
+                          {r.bars && r.bars.reduce((a, b) => a + b, 0) > 0 ? (
+                            <>
+                              <div
+                                style={{
+                                  width: `${
+                                    (r.bars[0] /
+                                      r.bars.reduce((a, b) => a + b, 0)) *
+                                    100
+                                  }%`,
+                                }}
+                                className="bg-blue-600 text-white text-xs flex items-center justify-center"
+                              >
+                                {r.bars[0]}
+                              </div>
+                              <div
+                                style={{
+                                  width: `${
+                                    (r.bars[1] /
+                                      r.bars.reduce((a, b) => a + b, 0)) *
+                                    100
+                                  }%`,
+                                }}
+                                className="bg-emerald-500 text-white text-xs flex items-center justify-center"
+                              >
+                                {r.bars[1] || ""}
+                              </div>
+                              <div
+                                style={{
+                                  width: `${
+                                    (r.bars[2] /
+                                      r.bars.reduce((a, b) => a + b, 0)) *
+                                    100
+                                  }%`,
+                                }}
+                                className="bg-amber-500 text-white text-xs flex items-center justify-center"
+                              >
+                                {r.bars[2] || ""}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-xs text-slate-400 px-2">-</div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 align-top text-center">
+                        {r.happy === 2 ? (
+                          <span className="text-amber-400">★</span>
+                        ) : r.happy === 1 ? (
+                          <span className="text-amber-400">☆</span>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </main>
       </div>
-    </section>
+    </div>
   );
 }
