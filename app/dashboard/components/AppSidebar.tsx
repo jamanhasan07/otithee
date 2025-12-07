@@ -6,73 +6,81 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import type { ModuleGroup } from "@/lib/modules";
 
-export default function AppSidebar({ modules }: { modules?: ModuleGroup[] }) {
+export default function AppSidebar({ modules }: { modules: ModuleGroup[] }) {
   const pathname = usePathname();
-  const groups = modules ?? [];
+console.log("Modules in sidebar:", modules);
+  // Auto-open group if current path is inside it
+  const initialGroups = useMemo(() => {
+    const state: Record<string, boolean> = {};
 
-  const initialState = useMemo(() => {
-    const s: Record<string, boolean> = {};
-    groups.forEach((g) => {
-      s[g.id] = g.items.some((it) => it.href && pathname?.startsWith(it.href));
+    modules.forEach((group) => {
+      state[group.id] = group.items.some((item) =>
+        pathname?.startsWith(item.href || "")
+      );
     });
-    return s;
-  }, [groups, pathname]);
 
-  const [openGroups, setOpenGroups] =
-    useState<Record<string, boolean>>(initialState);
+    return state;
+  }, [modules, pathname]);
 
-  const toggleGroup = (id: string) =>
-    setOpenGroups((p) => ({ ...p, [id]: !p[id] }));
+  const [open, setOpen] = useState(initialGroups);
 
-  const isActive = (href?: string) =>
-    href ? pathname === href || pathname?.startsWith(href) : false;
+  const toggle = (id: string) =>
+    setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
 
   return (
-    <nav className="px-2">
-      <Link href={'/dashboard'} className="py-4 px-2 text-center">
-        <div className="text-2xl font-bold text-blue-600">Otithee</div>
+    <nav className="px-2 py-3 w-full overflow-y-auto overflow-x-hidden">
+      {/* BRAND */}
+      <Link
+        href="/dashboard"
+        className="block py-4 px-2 text-center text-2xl font-bold text-blue-600"
+      >
+        Otithee
       </Link>
 
+      {/* GROUPS */}
       <div className="space-y-2">
-        {groups.map((group) => {
-          const opened = !!openGroups[group.id];
+        {modules.map((group) => {
+          const opened = open[group.id];
+
           return (
-            <div key={group.id} className="border-b last:border-b-0">
+            <div key={group.id} className="border-b last:border-b-0 pb-1">
+              {/* GROUP BUTTON */}
               <button
                 type="button"
-                onClick={() => toggleGroup(group.id)}
-                className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-muted/50 rounded"
+                className={cn(
+                  "flex w-full items-center justify-between px-3 py-2 text-sm font-medium hover:bg-gray-100 rounded-md"
+                )}
+                onClick={() => toggle(group.id)}
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">{group.icon}</span>
+                  {group.icon}
                   <span>{group.title}</span>
                 </div>
-                <span>{opened ? "▾" : "▸"}</span>
+
+                <span className="text-xs">{opened ? "▾" : "▸"}</span>
               </button>
 
+              {/* ITEMS */}
               {opened && (
-                <div className="px-3 pb-2">
-                  {group.items.map((item) => (
-                    <Link
-                      key={item.title}
-                      href={item.href ?? "#"}
-                      className={cn(
-                        "block px-3 py-2 rounded text-sm",
-                        isActive(item.href)
-                          ? "bg-blue-600 text-white"
-                          : "hover:bg-muted/50"
-                      )}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span>{item.title}</span>
-                        {item.badge ? (
-                          <span className="text-xs px-2 py-0.5 rounded bg-muted">
-                            {item.badge}
-                          </span>
-                        ) : null}
-                      </div>
-                    </Link>
-                  ))}
+                <div className="mt-1 space-y-1 pl-3">
+                  {group.items.map((item) => {
+                    const active = pathname?.startsWith(item.href || "");
+
+                    return (
+                      <Link
+                        key={item.title}
+                        href={item.href || "#"}
+                        className={cn(
+                          "block px-3 py-2 text-sm rounded-md",
+                          active
+                            ? "bg-blue-600 text-white"
+                            : "hover:bg-gray-100"
+                        )}
+                      >
+                        {item.title}
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
             </div>

@@ -69,6 +69,7 @@ export const DEFAULT_MODULES: ModuleGroup[] = [
     title: "Aviation",
     icon: <Plane className="w-5 h-5" />,
     items: [
+      { title: "Overview", href: "/dashboard/aviation" },
       { title: "Flights", href: "/dashboard/aviation/flights" },
       { title: "Passengers", href: "/dashboard/aviation/passengers" },
       { title: "Schedules", href: "/dashboard/aviation/schedules" },
@@ -80,6 +81,7 @@ export const DEFAULT_MODULES: ModuleGroup[] = [
     title: "Property Management",
     icon: <Building2 className="w-5 h-5" />,
     items: [
+      { title: "Overview", href: "/dashboard/property" },
       { title: "Units", href: "/dashboard/property/units" },
       { title: "Tenants", href: "/dashboard/property/tenants" },
       { title: "Leases", href: "/dashboard/property/leases" },
@@ -92,6 +94,7 @@ export const DEFAULT_MODULES: ModuleGroup[] = [
     title: "City / Resort Management",
     icon: <Map className="w-5 h-5" />,
     items: [
+      { title: "Overview", href: "/dashboard/city" },
       { title: "Zones", href: "/dashboard/city/zones" },
       { title: "Utilities", href: "/dashboard/city/utilities" },
       { title: "Staff", href: "/dashboard/city/staff" },
@@ -103,6 +106,7 @@ export const DEFAULT_MODULES: ModuleGroup[] = [
     title: "Training",
     icon: <GraduationCap className="w-5 h-5" />,
     items: [
+      { title: "Overview", href: "/dashboard/training" },
       { title: "Courses", href: "/dashboard/training/courses" },
       { title: "Sessions", href: "/dashboard/training/sessions" },
       { title: "Trainees", href: "/dashboard/training/trainees" },
@@ -114,6 +118,7 @@ export const DEFAULT_MODULES: ModuleGroup[] = [
     title: "Accounting",
     icon: <FileText className="w-5 h-5" />,
     items: [
+      { title: "Overview", href: "/dashboard/accounting" },
       { title: "Chart of Accounts", href: "/dashboard/accounting/coa" },
       { title: "Journal Entries", href: "/dashboard/accounting/journal" },
       { title: "Billing", href: "/dashboard/accounting/billing" },
@@ -126,6 +131,7 @@ export const DEFAULT_MODULES: ModuleGroup[] = [
     title: "Human Resources",
     icon: <UserCog className="w-5 h-5" />,
     items: [
+      { title: "Overview", href: "/dashboard/hr" },
       { title: "Employees", href: "/dashboard/hr/employees" },
       { title: "Attendance", href: "/dashboard/hr/attendance" },
       { title: "Payroll", href: "/dashboard/hr/payroll" },
@@ -138,6 +144,7 @@ export const DEFAULT_MODULES: ModuleGroup[] = [
     title: "Core ERP",
     icon: <Boxes className="w-5 h-5" />,
     items: [
+      { title: "Overview", href: "/dashboard/core" },
       { title: "Inventory", href: "/dashboard/core/inventory" },
       { title: "Vendors", href: "/dashboard/core/vendors" },
       { title: "Procurement", href: "/dashboard/core/procurement" },
@@ -313,8 +320,6 @@ export const HOTEL_MODULES: ModuleGroup[] = [
   },
 ];
 
-
-
 // Transport-specific modules (sidebar for /dashboard/transport)
 export const TRANSPORT_MODULES: ModuleGroup[] = [
   {
@@ -323,16 +328,31 @@ export const TRANSPORT_MODULES: ModuleGroup[] = [
     icon: <Truck className="w-5 h-5" />,
     items: [
       { title: "Overview", href: "/dashboard/transport" },
-      { title: "Ride Booking (On-demand)", href: "/dashboard/transport/ride-booking" },
+      {
+        title: "Ride Booking (On-demand)",
+        href: "/dashboard/transport/ride-booking",
+      },
       { title: "Scheduled Trips", href: "/dashboard/transport/scheduled" },
-      { title: "Live Tracking (GPS)", href: "/dashboard/transport/live-tracking" },
+      {
+        title: "Live Tracking (GPS)",
+        href: "/dashboard/transport/live-tracking",
+      },
       { title: "Drivers", href: "/dashboard/transport/drivers" },
-      { title: "Driver Roster & Assignment", href: "/dashboard/transport/drivers/assignments" },
+      {
+        title: "Driver Roster & Assignment",
+        href: "/dashboard/transport/drivers/assignments",
+      },
       { title: "Fleet Management", href: "/dashboard/transport/fleet" },
-      { title: "Maintenance & Inspections", href: "/dashboard/transport/fleet/maintenance" },
+      {
+        title: "Maintenance & Inspections",
+        href: "/dashboard/transport/fleet/maintenance",
+      },
       { title: "Fuel Logs", href: "/dashboard/transport/fleet/fuel-logs" },
       { title: "Fare & Billing", href: "/dashboard/transport/billing" },
-      { title: "Trip History & Analytics", href: "/dashboard/transport/analytics" },
+      {
+        title: "Trip History & Analytics",
+        href: "/dashboard/transport/analytics",
+      },
       { title: "Reports", href: "/dashboard/transport/reports" },
     ],
   },
@@ -344,9 +364,18 @@ export const TRANSPORT_MODULES: ModuleGroup[] = [
     icon: <Truck className="w-5 h-5" />,
     items: [
       { title: "Fleet Overview", href: "/dashboard/transport/fleet" },
-      { title: "Maintenance Work Orders", href: "/dashboard/transport/fleet/maintenance" },
-      { title: "Inspection Logs", href: "/dashboard/transport/fleet/inspections" },
-      { title: "Fuel & Expense Logs", href: "/dashboard/transport/fleet/fuel-logs" },
+      {
+        title: "Maintenance Work Orders",
+        href: "/dashboard/transport/fleet/maintenance",
+      },
+      {
+        title: "Inspection Logs",
+        href: "/dashboard/transport/fleet/inspections",
+      },
+      {
+        title: "Fuel & Expense Logs",
+        href: "/dashboard/transport/fleet/fuel-logs",
+      },
     ],
   },
 
@@ -356,7 +385,10 @@ export const TRANSPORT_MODULES: ModuleGroup[] = [
     icon: <ChevronRight className="w-5 h-5" />,
     items: [
       { title: "Dispatch Board", href: "/dashboard/transport/ops/dispatch" },
-      { title: "Driver Assignments", href: "/dashboard/transport/ops/assignments" },
+      {
+        title: "Driver Assignments",
+        href: "/dashboard/transport/ops/assignments",
+      },
       { title: "Schedules", href: "/dashboard/transport/ops/schedules" },
     ],
   },
@@ -366,10 +398,19 @@ export const TRANSPORT_MODULES: ModuleGroup[] = [
     title: "Billing & Analytics",
     icon: <FileText className="w-5 h-5" />,
     items: [
-      { title: "Fare Rules & Setup", href: "/dashboard/transport/billing/fare-setup" },
-      { title: "Invoices & Payments", href: "/dashboard/transport/billing/invoices" },
+      {
+        title: "Fare Rules & Setup",
+        href: "/dashboard/transport/billing/fare-setup",
+      },
+      {
+        title: "Invoices & Payments",
+        href: "/dashboard/transport/billing/invoices",
+      },
       { title: "Trip Analytics", href: "/dashboard/transport/analytics" },
-      { title: "Revenue Reports", href: "/dashboard/transport/reports/revenue" },
+      {
+        title: "Revenue Reports",
+        href: "/dashboard/transport/reports/revenue",
+      },
     ],
   },
 ];

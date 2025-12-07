@@ -3,7 +3,5 @@ import React from "react";
 import HotelStatusOverviewPremium from "./components/HotelStatusOverviewPremium";
 
 export default function HotelHome() {
-  return (
- <HotelStatusOverviewPremium />
-  );
+  return <HotelStatusOverviewPremium />;
 }

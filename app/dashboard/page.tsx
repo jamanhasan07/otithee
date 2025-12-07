@@ -1,11 +1,11 @@
-import ModulesGrid from "./components/ModulesGrid"
+import ModulesGrid from "./components/ModulesGrid";
 
 const DashboardPage = () => {
   return (
     <div>
-        <ModulesGrid />
+      <ModulesGrid />
     </div>
-  )
-}
+  );
+};
 
-export default DashboardPage
+export default DashboardPage;

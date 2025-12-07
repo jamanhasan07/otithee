@@ -222,7 +222,7 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
   };
 
   return (
-    <div className="min-h-screen  text-slate-900">
+    <div className="  text-slate-900  overflow-auto ">
       <div className=" mx-auto grid grid-cols-12 gap-6">
           <h1 className="text-xl font-semibold">Dashboard</h1>
         {/* Main area */}
