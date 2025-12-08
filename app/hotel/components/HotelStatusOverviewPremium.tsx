@@ -3,6 +3,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { DollarSign } from "lucide-react";
+import Title from "@/app/components/Title";
 
 type Kpi = {
   id: string;
@@ -200,7 +201,10 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
   return (
     <div className="text-slate-900">
       <div className="  px-4 sm:px-6 lg:px-0 space-y-6">
-        <h1 className="text-xl font-semibold">Dashboard</h1>
+        <Title
+          title="Hotel & Resort"
+          subTitle="Rooms, bookings, housekeeping, and F&B operations — all in one place."
+        />
 
         {/* KPI cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -409,12 +413,7 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
                 className="flex-1 p-3 bg-[#fbfcfd] rounded-lg flex items-center justify-center"
               >
                 <div className="flex items-center gap-3">
-                  <svg
-                    width="64"
-                    height="64"
-                    viewBox="0 0 64 64"
-                    aria-hidden
-                  >
+                  <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden>
                     <circle
                       cx="32"
                       cy="32"
@@ -430,9 +429,9 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
                       stroke={k.color}
                       strokeWidth="6"
                       strokeLinecap="round"
-                      strokeDasharray={`${
-                        (Math.PI * 2 * 26 * k.value) / 100
-                      } ${Math.PI * 2 * 26}`}
+                      strokeDasharray={`${(Math.PI * 2 * 26 * k.value) / 100} ${
+                        Math.PI * 2 * 26
+                      }`}
                       transform="rotate(-90 32 32)"
                       fill="none"
                     />
@@ -516,9 +515,7 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
                               </div>
                             </>
                           ) : (
-                            <div className="text-xs text-slate-400 px-2">
-                              -
-                            </div>
+                            <div className="text-xs text-slate-400 px-2">-</div>
                           )}
                         </div>
                       </td>

@@ -3,6 +3,7 @@
 import React from "react";
 import { BookOpen, Users, CalendarDays, ClipboardList, BarChart2, RefreshCw, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
+import Title from "@/app/components/Title";
 
 // TrainingOverview — international-standard layout matching other overview pages
 // - KPI cards
@@ -133,10 +134,11 @@ export default function TrainingOverview() {
   return (
     <section className="p-4">
       <header className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-bold">Training Overview</h1>
-          <p className="text-sm text-neutral-500">Courses, sessions, trainees and certification activity</p>
-        </div>
+      <Title
+  title="Training"
+  subTitle="Courses, exams, certifications, and staff skill development."
+/>
+
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/70 dark:bg-neutral-800/70 border border-neutral-200 dark:border-neutral-800 shadow-sm">
             <RefreshCw className="w-4 h-4" />

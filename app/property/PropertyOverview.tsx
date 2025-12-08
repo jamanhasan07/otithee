@@ -13,6 +13,7 @@ import {
   Clock,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import Title from "../components/Title";
 
 // Property Overview — international-standard layout matching Transport/Aviation pages
 // - 12-column responsive grid
@@ -189,10 +190,11 @@ export default function PropertyOverview() {
   return (
     <section className="p-4">
       <header className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-bold">Property Overview</h1>
-          <p className="text-sm text-neutral-500">Manage buildings, units, tenants and maintenance</p>
-        </div>
+   <Title
+  title="Property"
+  subTitle="Tenants, maintenance, billing, inspections, and real estate operations."
+/>
+
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/70 dark:bg-neutral-800/70 border border-neutral-200 dark:border-neutral-800 shadow-sm">
             <RefreshCw className="w-4 h-4" />

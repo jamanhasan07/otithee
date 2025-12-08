@@ -14,6 +14,8 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import Title from "@/app/components/Title";
+
 
 // Transport-focused, unique dashboard layout
 // - Row 1: 3 compact KPI cards (col-span 4 each)
@@ -261,10 +263,11 @@ export default function TransportsOverviewPremium() {
   return (
     <section className="p-4">
       <header className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-bold">Transport Dashboard</h1>
-          <p className="text-sm text-neutral-500">Overview focused on active routes, vehicles and utilization</p>
-        </div>
+      <Title
+  title="Transport"
+  subTitle="Manage fleet, drivers, bookings, dispatching, and real-time tracking."
+/>
+
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/70 dark:bg-neutral-800/70 border border-neutral-200 dark:border-neutral-800 shadow-sm">
             <RefreshCw className="w-4 h-4" />

@@ -13,6 +13,7 @@ import {
   Layers,
   Plane,
 } from "lucide-react";
+import Title from "@/app/components/Title";
 
 type ModuleItem = {
   id: string;
@@ -162,9 +163,10 @@ export default function ModulesMosaicSingleColumnMobile() {
 
   return (
     <section className="px-3 sm:px-0">
-      <h2 className="text-xl sm:text-2xl font-semibold mb-4">
-        Otithee — Modules
-      </h2>
+      <Title
+        title="All modules"
+        subTitle="Browse and open any Otithee ERP module from one place."
+      />
 
       {/* 1 col mobile, 4 cols md, 6 cols lg. Rows grow with content */}
       <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 auto-rows-[minmax(180px,_auto)]">

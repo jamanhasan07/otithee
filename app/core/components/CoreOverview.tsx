@@ -3,6 +3,7 @@
 import React from "react";
 import { Boxes, ShoppingCart, Building2, Wrench, Users, FileText, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
+import Title from "@/app/components/Title";
 
 // CoreERPOverview — international-standard layout matching your other overview pages
 // - KPI cards: Inventory Value, Active POs, Open Work Orders
@@ -132,10 +133,11 @@ export default function CoreERPOverview() {
   return (
     <section className="p-4">
       <header className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-bold">Core ERP Overview</h1>
-          <p className="text-sm text-neutral-500">Procurement, inventory, assets and maintenance at a glance</p>
-        </div>
+      <Title
+  title="Core ERP"
+  subTitle="Roles, permissions, integrations, workflows, and API controls."
+/>
+
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/70 dark:bg-neutral-800/70 border border-neutral-200 dark:border-neutral-800 shadow-sm">
             <RefreshCw className="w-4 h-4" />

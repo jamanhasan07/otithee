@@ -3,6 +3,7 @@
 import React from "react";
 import { FileText, Wallet, BarChart2, Calendar, Clock, RefreshCw, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
+import Title from "@/app/components/Title";
 
 // AccountingOverview — international-standard layout matching other overview pages
 // - KPI cards (Revenue, Receivables, Payables)
@@ -97,10 +98,11 @@ export default function AccountingOverview() {
   return (
     <section className="p-4">
       <header className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-bold">Accounting Overview</h1>
-          <p className="text-sm text-neutral-500">Financial snapshot — revenue, AR/AP and recent invoices</p>
-        </div>
+        <Title
+  title="Accounting & HR"
+  subTitle="GL, payroll, invoices, expenses, recruitment, and workforce management."
+/>
+
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/70 dark:bg-neutral-800/70 border border-neutral-200 dark:border-neutral-800 shadow-sm">
             <RefreshCw className="w-4 h-4" />
