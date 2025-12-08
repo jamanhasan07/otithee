@@ -1,12 +1,16 @@
+import React from "react";
 
-import { ModulesProvider } from "@/context/modules-context";
 import { DEFAULT_MODULES } from "@/lib/modules";
-import DashboardShell from "./components/DashboardShell";
+import DashboardLayoutWrapper from "./components/DashboardLayoutWrapper";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+const DashbaordLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <ModulesProvider modules={DEFAULT_MODULES}>
-      <DashboardShell>{children}</DashboardShell>
-    </ModulesProvider>
+    <div>
+      <DashboardLayoutWrapper modules={DEFAULT_MODULES}>
+        {children}
+      </DashboardLayoutWrapper>
+    </div>
   );
-}
+};
+
+export default DashbaordLayout;

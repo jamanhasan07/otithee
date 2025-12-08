@@ -8,7 +8,7 @@ import type { ModuleGroup } from "@/lib/modules";
 
 export default function AppSidebar({ modules }: { modules: ModuleGroup[] }) {
   const pathname = usePathname();
-console.log("Modules in sidebar:", modules);
+
   // Auto-open group if current path is inside it
   const initialGroups = useMemo(() => {
     const state: Record<string, boolean> = {};

@@ -1,15 +1,15 @@
 "use client";
 
-import { DEFAULT_MODULES } from "@/lib/modules";
+import { DEFAULT_MODULES, ModuleGroup } from "@/lib/modules";
 import AppSidebar from "./AppSidebar";
 import Header from "./Header";
 
 type DashbaordLayoutWrapperProps = {
   children: React.ReactNode;
-  modules?: any[];
+  modules?: ModuleGroup[];
 };
 
-const DashbaordLayout: React.FC<DashbaordLayoutWrapperProps> = ({
+const DashboardLayoutWrapper: React.FC<DashbaordLayoutWrapperProps> = ({
   modules = DEFAULT_MODULES,
   children,
 }) => {
@@ -17,9 +17,7 @@ const DashbaordLayout: React.FC<DashbaordLayoutWrapperProps> = ({
     // Whole viewport, no window scroll
     <div className="h-screen bg-slate-50 overflow-hidden">
       {/* SIDEBAR (fixed, its own vertical scroll) */}
-      <aside
-        className="w-72 h-screen overflow-y-auto border-r bg-white fixed left-0 top-0 z-40"
-      >
+      <aside className="w-72 h-screen overflow-y-auto border-r bg-white fixed left-0 top-0 z-40">
         <AppSidebar modules={modules} />
       </aside>
 
@@ -29,7 +27,7 @@ const DashbaordLayout: React.FC<DashbaordLayoutWrapperProps> = ({
         <Header />
 
         {/* MAIN CONTENT (only this scrolls besides sidebar) */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-10 bg-green-600">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-5">
           {children}
         </main>
       </div>
@@ -37,4 +35,4 @@ const DashbaordLayout: React.FC<DashbaordLayoutWrapperProps> = ({
   );
 };
 
-export default DashbaordLayout;
+export default DashboardLayoutWrapper;

@@ -9,8 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Profile = () => {
   const handleLogout = () => {
-    console.log("logout clicked");
-    // Your actual logout logic here
+
   };
 
   return (

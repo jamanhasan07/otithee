@@ -34,7 +34,7 @@ const MODULES: ModuleItem[] = [
     title: "Hotel & Resort",
     description: "Rooms, bookings, housekeeping & F&B.",
     icon: <Home className="w-5 h-5" />,
-    path: "/dashboard/hotel",
+    path: "/hotel",
     tag: "Core",
     image:
       "https://images.unsplash.com/photo-1501117716987-c8e1ecb210d8?w=1600&q=80&auto=format&fit=crop",
@@ -47,7 +47,7 @@ const MODULES: ModuleItem[] = [
     title: "Transport",
     description: "Fleet, drivers, bookings & tracking.",
     icon: <Truck className="w-5 h-5" />,
-    path: "/dashboard/transport",
+    path: "/transport",
     tag: "Logistics",
     image:
       "https://images.unsplash.com/photo-1506617420156-8e4536971650?w=1600&q=80&auto=format&fit=crop",
@@ -60,7 +60,7 @@ const MODULES: ModuleItem[] = [
     title: "Aviation",
     description: "Air ticketing, visas & compliance.",
     icon: <Plane className="w-5 h-5" />,
-    path: "/dashboard/aviation",
+    path: "/aviation",
     tag: "Travel",
     image:
       "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1600&q=80&auto=format&fit=crop",
@@ -73,7 +73,7 @@ const MODULES: ModuleItem[] = [
     title: "Property",
     description: "Tenants, maintenance & billing.",
     icon: <Layers className="w-5 h-5" />,
-    path: "/dashboard/property",
+    path: "/property",
     tag: "Real Estate",
     image:
       "https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?w=1600&q=80&auto=format&fit=crop",
@@ -86,7 +86,7 @@ const MODULES: ModuleItem[] = [
     title: "City & Resort",
     description: "Facilities, bookings & community tools.",
     icon: <GridIcon className="w-5 h-5" />,
-    path: "/dashboard/city",
+    path: "/city",
     tag: "Urban",
     image:
       "https://images.unsplash.com/photo-1505988772020-6b0f1d6a862b?w=1600&q=80&auto=format&fit=crop",
@@ -99,7 +99,7 @@ const MODULES: ModuleItem[] = [
     title: "Training",
     description: "Courses, exams & certifications.",
     icon: <BookOpen className="w-5 h-5" />,
-    path: "/dashboard/training",
+    path: "/training",
     tag: "Training",
     image:
       "https://images.unsplash.com/photo-1513258496099-48168024aec0?w=1600&q=80&auto=format&fit=crop",
@@ -112,7 +112,7 @@ const MODULES: ModuleItem[] = [
     title: "Accounting & HR",
     description: "GL, payroll, invoices & recruitment.",
     icon: <FileText className="w-5 h-5" />,
-    path: "/dashboard/accounting-hr",
+    path: "/accounting",
     tag: "Finance",
     image:
       "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=1600&q=80&auto=format&fit=crop",
@@ -125,7 +125,7 @@ const MODULES: ModuleItem[] = [
     title: "Core ERP",
     description: "Roles, permissions, integrations & API.",
     icon: <CalendarDays className="w-5 h-5" />,
-    path: "/dashboard/core",
+    path: "/core",
     tag: "Platform",
     image:
       "https://images.unsplash.com/photo-1532153975070-2c7c9af8a6dc?w=1600&q=80&auto=format&fit=crop",

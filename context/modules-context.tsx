@@ -3,6 +3,7 @@
 import { createContext, useContext } from "react";
 import type { ModuleGroup } from "@/lib/modules";
 
+// Create a context with an empty array as default
 const ModulesContext = createContext<ModuleGroup[]>([]);
 
 export function useModules() {
