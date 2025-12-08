@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 import { Card } from "@/components/ui/card";
 import { DollarSign } from "lucide-react";
 
@@ -9,28 +9,11 @@ type Kpi = {
   title: string;
   value: number;
   color: string;
-  gradient: string[];   // [startColor, endColor]
+  gradient: string[]; // [startColor, endColor]
   trend: number[];
 };
 
-function useCountUp(target: number, duration = 800) {
-  const [num, setNum] = useState(0);
-  useEffect(() => {
-    let raf = 0;
-    const start = performance.now();
-    const from = 0;
-    const diff = target - from;
-    const step = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      const eased = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-      setNum(Math.round(from + diff * eased));
-      if (t < 1) raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [target, duration]);
-  return num;
-}
+/* ---------- SMALL CHART COMPONENTS ---------- */
 
 function AreaChart({
   points = [],
@@ -42,17 +25,21 @@ function AreaChart({
   height?: number;
 }) {
   if (!points || points.length === 0) return null;
+
   const max = Math.max(...points);
   const w = 240;
   const step = w / Math.max(1, points.length - 1);
+
   const path = points
     .map(
       (p, i) =>
         `${i === 0 ? "M" : "L"} ${i * step} ${height - (p / max) * height}`
     )
     .join(" ");
+
   const area = `${path} L ${w} ${height} L 0 ${height} Z`;
   const gid = `g_${color.replace("#", "")}`;
+
   return (
     <svg width="100%" viewBox={`0 0 ${w} ${height}`} preserveAspectRatio="none">
       <defs>
@@ -84,9 +71,11 @@ function MiniBar({
   height?: number;
 }) {
   if (!points || points.length === 0) return null;
+
   const max = Math.max(...points);
   const bw = Math.max(4, Math.floor(96 / points.length) - 2);
   const viewW = points.length * (bw + 4);
+
   return (
     <svg
       width="100%"
@@ -114,66 +103,10 @@ function MiniBar({
   );
 }
 
-function ProgressCircle({
-  value = 0,
-  size = 72,
-  stroke = 8,
-  color = "#10b981",
-}: {
-  value?: number;
-  size?: number;
-  stroke?: number;
-  color?: string;
-}) {
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const [dash, setDash] = useState(circumference);
-
-  useEffect(() => {
-    const v = Math.max(0, Math.min(100, value));
-    const target = circumference - (v / 100) * circumference;
-
-    let raf = 0;
-    const start = performance.now();
-    const duration = 800;
-    const from = circumference;
-    const diff = target - from;
-    const step = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      const eased = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-      setDash(from + diff * eased);
-      if (t < 1) raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [value, circumference]);
-
-  return (
-    <svg
-      width={size}
-      height={size}
-      role="img"
-      aria-label={`Progress ${value}%`}
-    >
-      <g transform={`translate(${size / 2}, ${size / 2})`}>
-        <circle r={radius} fill="none" stroke="#eef2f7" strokeWidth={stroke} />
-        <circle
-          r={radius}
-          fill="none"
-          stroke={color}
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={dash}
-          transform="rotate(-90)"
-        />
-      </g>
-    </svg>
-  );
-}
+/* ---------- MAIN COMPONENT ---------- */
 
 export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
-  const metrics : Kpi[] = data ?? [
+  const metrics: Kpi[] = data ?? [
     {
       id: "new-booking",
       title: "New Booking",
@@ -221,321 +154,324 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
     },
   };
 
+  const housekeepingRows = [
+    {
+      name: "Mike",
+      summary: "Text here",
+      completion: 50,
+      overdue: 2,
+      bars: [7, 1, 3],
+      happy: 1,
+    },
+    {
+      name: "Ashton",
+      summary: "Text here",
+      completion: 20,
+      overdue: 8,
+      bars: [3, 12, 4],
+      happy: 0,
+    },
+    {
+      name: "Devon",
+      summary: "Text here",
+      completion: 0,
+      overdue: 11,
+      bars: [10, 0, 0],
+      happy: 1,
+    },
+    {
+      name: "Bill",
+      summary: "Text here",
+      completion: 40,
+      overdue: 3,
+      bars: [5, 6, 2],
+      happy: 2,
+    },
+    {
+      name: "James",
+      summary: "Text here",
+      completion: 0,
+      overdue: 0,
+      bars: [0, 0, 0],
+      happy: 0,
+    },
+  ];
+
   return (
-    <div className="  text-slate-900  overflow-auto ">
-      <div className=" mx-auto grid grid-cols-12 gap-6">
-          <h1 className="text-xl font-semibold">Dashboard</h1>
-        {/* Main area */}
-        <main className="col-span-12">
-          {/* Top KPI pills (colorful) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {metrics.map((kpi) => (
-              <div
-                key={kpi.id}
-                className="rounded-2xl p-5 text-white shadow-lg  "
-                style={{
-                  background: `linear-gradient(90deg, ${kpi.gradient[0]}, ${kpi.gradient[1]})`,
-                }}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-3xl font-bold">{kpi.value}</div>
-                    <div className="text-sm opacity-90">{kpi.title}</div>
-                  </div>
-                  <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
-                    <DollarSign />
+    <div className="text-slate-900">
+      <div className="  px-4 sm:px-6 lg:px-0 space-y-6">
+        <h1 className="text-xl font-semibold">Dashboard</h1>
+
+        {/* KPI cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {metrics.map((kpi) => (
+            <div
+              key={kpi.id}
+              className="rounded-2xl p-5 text-white shadow-lg"
+              style={{
+                background: `linear-gradient(90deg, ${kpi.gradient[0]}, ${kpi.gradient[1]})`,
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-3xl font-bold">{kpi.value}</div>
+                  <div className="text-sm opacity-90">{kpi.title}</div>
+                </div>
+                <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
+                  <DollarSign />
+                </div>
+              </div>
+              <div className="mt-4 h-16">
+                <AreaChart points={kpi.trend} color={kpi.color} height={40} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Main grid: charts + booking + schedule */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left column */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="rounded-2xl p-6 bg-white shadow">
+              {/* Totals */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+                <div>
+                  <div className="text-sm text-slate-400">Total Sales</div>
+                  <div className="text-2xl font-semibold">
+                    {stats.totalSales.value.toLocaleString()}
                   </div>
                 </div>
-                <div className="mt-4 h-16">
-                  <AreaChart points={kpi.trend} color={kpi.color} height={40} />
+
+                <div>
+                  <div className="text-sm text-slate-400">New Customers</div>
+                  <div className="text-xl font-semibold">
+                    {stats.newCustomers.value.toLocaleString()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Charts */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div
+                  className="col-span-1 md:col-span-2 p-4 rounded-lg"
+                  style={{
+                    background: "linear-gradient(180deg,#f8feff,#ffffff)",
+                  }}
+                >
+                  <div className="text-sm text-slate-400 mb-2">
+                    Occupancy Trend
+                  </div>
+                  <div className="h-40">
+                    <AreaChart
+                      points={stats.totalSales.points}
+                      color={stats.totalSales.color}
+                      height={120}
+                    />
+                  </div>
+                </div>
+
+                <div
+                  className="p-4 rounded-lg overflow-hidden"
+                  style={{
+                    background: "linear-gradient(180deg,#fff7f0,#ffffff)",
+                  }}
+                >
+                  <div className="text-sm text-slate-400 mb-2">
+                    Revenue Breakdown
+                  </div>
+                  <div className="h-40">
+                    <MiniBar
+                      points={[30, 20, 40, 25, 50, 35]}
+                      color="#fb7185"
+                      height={120}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Booking list */}
+              <div className="mt-6">
+                <div className="text-sm text-slate-500 mb-3 font-medium">
+                  Booking list
+                </div>
+                <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead className="text-xs text-slate-500">
+                      <tr>
+                        <th className="py-3 text-left px-4">#</th>
+                        <th className="py-3 text-left">Guest</th>
+                        <th className="py-3 text-left">Type of Room</th>
+                        <th className="py-3 text-left">Check In</th>
+                        <th className="py-3 text-left">Check out</th>
+                        <th className="py-3 text-left">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-t">
+                        <td className="py-3 px-4">1</td>
+                        <td>Jordy Astaws</td>
+                        <td>Double Room</td>
+                        <td>01/09/24</td>
+                        <td>02/10/24</td>
+                        <td>
+                          <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">
+                            Paid
+                          </span>
+                        </td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="py-3 px-4">2</td>
+                        <td>Alisa Oon</td>
+                        <td>Double Room</td>
+                        <td>28/09/24</td>
+                        <td>01/10/24</td>
+                        <td>
+                          <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">
+                            Paid
+                          </span>
+                        </td>
+                      </tr>
+                      <tr className="border-t">
+                        <td className="py-3 px-4">3</td>
+                        <td>Brigette Guerra</td>
+                        <td>Double Room</td>
+                        <td>23/10/24</td>
+                        <td>22/11/24</td>
+                        <td>
+                          <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs">
+                            Pending
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Right column */}
+          <div className="space-y-6">
+            <Card className="rounded-2xl p-4 bg-white shadow">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-medium">Upcoming schedule</h4>
+                <div className="text-xs text-slate-400">This month</div>
+              </div>
+              <div className="bg-white rounded-lg p-3">
+                <div className="grid grid-cols-7 gap-2 text-xs text-slate-400">
+                  {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
+                    <div key={d} className="text-center py-2">
+                      {d}
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 text-sm text-slate-700">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-cyan-100 text-cyan-700 mr-2">
+                    11
+                  </span>
+                  Review Manual Checkin
+                  <div className="text-xs text-slate-400">10:30 am</div>
+                </div>
+                <div className="mt-3 text-sm text-slate-700">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 text-amber-700 mr-2">
+                    20
+                  </span>
+                  Meeting with Supervisor
+                  <div className="text-xs text-slate-400">11:00 am</div>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="rounded-2xl p-4 bg-white shadow">
+              <h4 className="text-sm font-medium">Today is Revenue</h4>
+              <div className="text-2xl font-semibold mt-2">৳ 123,890</div>
+              <div className="mt-2 text-xs text-slate-400">vs yesterday</div>
+            </Card>
+          </div>
+        </div>
+
+        {/* Housekeeping card */}
+        <Card className="rounded-2xl p-4 bg-white shadow w-full">
+          <h3 className="text-lg font-semibold mb-3">
+            Housekeeping — Progress, Plans & Problems
+          </h3>
+
+          {/* Rings row */}
+          <div className="flex flex-col sm:flex-row items-stretch gap-4 mb-4">
+            {[
+              { label: "Happiness", value: 4, color: "#0ea5e9" },
+              { label: "Completion", value: 75, color: "#10b981" },
+              { label: "Overdue", value: 5, color: "#f59e0b" },
+              { label: "Problems", value: 3, color: "#fb7185" },
+            ].map((k, i) => (
+              <div
+                key={i}
+                className="flex-1 p-3 bg-[#fbfcfd] rounded-lg flex items-center justify-center"
+              >
+                <div className="flex items-center gap-3">
+                  <svg
+                    width="64"
+                    height="64"
+                    viewBox="0 0 64 64"
+                    aria-hidden
+                  >
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="26"
+                      stroke="#eef2f7"
+                      strokeWidth="6"
+                      fill="none"
+                    />
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="26"
+                      stroke={k.color}
+                      strokeWidth="6"
+                      strokeLinecap="round"
+                      strokeDasharray={`${
+                        (Math.PI * 2 * 26 * k.value) / 100
+                      } ${Math.PI * 2 * 26}`}
+                      transform="rotate(-90 32 32)"
+                      fill="none"
+                    />
+                    <text
+                      x="32"
+                      y="34"
+                      textAnchor="middle"
+                      fontSize="14"
+                      className="font-semibold text-slate-700"
+                    >
+                      {k.value}
+                      {k.label === "Completion" ? "%" : ""}
+                    </text>
+                  </svg>
+                  <div className="text-sm text-slate-600">{k.label}</div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Main grid: charts + booking list + schedule */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left: large column (charts + table) */}
-            <div className="lg:col-span-2 space-y-6">
-              <Card className="rounded-2xl p-6 bg-white shadow">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <div className="text-sm text-slate-400">Total Sales</div>
-                    <div className="text-2xl font-semibold">
-                      {stats.totalSales.value.toLocaleString()}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div>
-                      <div className="text-sm text-slate-400">
-                        New Customers
-                      </div>
-                      <div className="text-xl font-semibold">
-                        {stats.newCustomers.value.toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div
-                    className="col-span-2 p-4 rounded-lg"
-                    style={{
-                      background: "linear-gradient(180deg,#f8feff,#ffffff)",
-                    }}
-                  >
-                    <div className="text-sm text-slate-400 mb-2">
-                      Occupancy Trend
-                    </div>
-                    <div className="h-40">
-                      <AreaChart
-                        points={stats.totalSales.points}
-                        color={stats.totalSales.color}
-                        height={120}
-                      />
-                    </div>
-                  </div>
-                  <div
-                    className="p-4 rounded-lg"
-                    style={{
-                      background: "linear-gradient(180deg,#fff7f0,#ffffff)",
-                    }}
-                  >
-                    <div className="text-sm text-slate-400 mb-2">
-                      Revenue Breakdown
-                    </div>
-                    <div className="h-40">
-                      <MiniBar
-                        points={[30, 20, 40, 25, 50, 35]}
-                        color="#fb7185"
-                        height={120}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <div className="text-sm text-slate-500 mb-3 font-medium">
-                    Booking list
-                  </div>
-                  <div className="bg-white rounded-lg shadow-sm overflow-auto">
-                    <table className="min-w-full text-sm">
-                      <thead className="text-xs text-slate-500">
-                        <tr>
-                          <th className="py-3 text-left px-4">#</th>
-                          <th className="py-3 text-left">Guest</th>
-                          <th className="py-3 text-left">Type of Room</th>
-                          <th className="py-3 text-left">Check In</th>
-                          <th className="py-3 text-left">Check out</th>
-                          <th className="py-3 text-left">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-t">
-                          <td className="py-3 px-4">1</td>
-                          <td>Jordy Astaws</td>
-                          <td>Double Room</td>
-                          <td>01/09/24</td>
-                          <td>02/10/24</td>
-                          <td>
-                            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">
-                              Paid
-                            </span>
-                          </td>
-                        </tr>
-                        <tr className="border-t">
-                          <td className="py-3 px-4">2</td>
-                          <td>Alisa Oon</td>
-                          <td>Double Room</td>
-                          <td>28/09/24</td>
-                          <td>01/10/24</td>
-                          <td>
-                            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">
-                              Paid
-                            </span>
-                          </td>
-                        </tr>
-                        <tr className="border-t">
-                          <td className="py-3 px-4">3</td>
-                          <td>Brigette Guerra</td>
-                          <td>Double Room</td>
-                          <td>23/10/24</td>
-                          <td>22/11/24</td>
-                          <td>
-                            <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs">
-                              Pending
-                            </span>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            {/* Right column: calendar + schedule */}
-            <div className="space-y-6">
-              <Card className="rounded-2xl p-4 bg-white shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-medium">Upcoming schedule</h4>
-                  <div className="text-xs text-slate-400">This month</div>
-                </div>
-                <div className="bg-white rounded-lg p-3">
-                  <div className="grid grid-cols-7 gap-2 text-xs text-slate-400">
-                    {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
-                      <div key={d} className="text-center py-2">
-                        {d}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-4 text-sm text-slate-700">
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-cyan-100 text-cyan-700 mr-2">
-                      11
-                    </span>
-                    Review Manual Checkin{" "}
-                    <div className="text-xs text-slate-400">10:30 am</div>
-                  </div>
-                  <div className="mt-3 text-sm text-slate-700">
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 text-amber-700 mr-2">
-                      20
-                    </span>
-                    Meeting with Supervisor{" "}
-                    <div className="text-xs text-slate-400">11:00 am</div>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="rounded-2xl p-4 bg-white shadow">
-                <h4 className="text-sm font-medium">Today's Revenue</h4>
-                <div className="text-2xl font-semibold mt-2">৳ 123,890</div>
-                <div className="mt-2 text-xs text-slate-400">vs yesterday</div>
-              </Card>
-            </div>
-          </div>
-          <Card className="rounded-2xl p-4 bg-white shadow w-full mt-6">
-            <h3 className="text-lg font-semibold mb-3">
-              Housekeeping — Progress, Plans & Problems
-            </h3>
-
-            {/* Top small rings row (summary KPIs) */}
-            <div className="flex items-center gap-4 mb-4">
-              {[
-                { label: "Happiness", value: 4, color: "#0ea5e9" },
-                { label: "Completion", value: 75, color: "#10b981" },
-                { label: "Overdue", value: 5, color: "#f59e0b" },
-                { label: "Problems", value: 3, color: "#fb7185" },
-              ].map((k, i) => (
-                <div
-                  key={i}
-                  className="flex-1 p-3 bg-[#fbfcfd] rounded-lg flex items-center justify-center"
-                >
-                  <div className="flex items-center gap-3">
-                    <div>
-                      {/* small ring */}
-                      <svg
-                        width="64"
-                        height="64"
-                        viewBox="0 0 64 64"
-                        aria-hidden
-                      >
-                        <circle
-                          cx="32"
-                          cy="32"
-                          r="26"
-                          stroke="#eef2f7"
-                          strokeWidth="6"
-                          fill="none"
-                        />
-                        <circle
-                          cx="32"
-                          cy="32"
-                          r="26"
-                          stroke={k.color}
-                          strokeWidth="6"
-                          strokeLinecap="round"
-                          strokeDasharray={`${
-                            (Math.PI * 2 * 26 * k.value) / 100
-                          } ${Math.PI * 2 * 26}`}
-                          transform="rotate(-90 32 32)"
-                          fill="none"
-                        />
-                        <text
-                          x="32"
-                          y="34"
-                          textAnchor="middle"
-                          className="font-semibold text-slate-700"
-                          fontSize="14"
-                        >
-                          {k.value}
-                          {k.label === "Completion" ? "%" : ""}
-                        </text>
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Stacked bar table like Progress/Plans/Problems */}
-            <div className="overflow-auto">
-              <table className="min-w-full text-sm">
-                <thead className="text-xs text-slate-500">
-                  <tr>
-                    <th className="py-2 text-left px-4">Name</th>
-                    <th className="py-2 text-left">Summary</th>
-                    <th className="py-2 text-left">Completion</th>
-                    <th className="py-2 text-left">Overdue</th>
-                    <th className="py-2 text-left">
-                      Progress / Plans / Problems
-                    </th>
-                    <th className="py-2 text-left">Happiness</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    {
-                      name: "Mike",
-                      summary: "Text here",
-                      completion: 50,
-                      overdue: 2,
-                      bars: [7, 1, 3],
-                      happy: 1,
-                    },
-                    {
-                      name: "Ashton",
-                      summary: "Text here",
-                      completion: 20,
-                      overdue: 8,
-                      bars: [3, 12, 4],
-                      happy: 0,
-                    },
-                    {
-                      name: "Devon",
-                      summary: "Text here",
-                      completion: 0,
-                      overdue: 11,
-                      bars: [10, 0, 0],
-                      happy: 1,
-                    },
-                    {
-                      name: "Bill",
-                      summary: "Text here",
-                      completion: 40,
-                      overdue: 3,
-                      bars: [5, 6, 2],
-                      happy: 2,
-                    },
-                    {
-                      name: "James",
-                      summary: "Text here",
-                      completion: 0,
-                      overdue: 0,
-                      bars: [0, 0, 0],
-                      happy: 0,
-                    },
-                  ].map((r, idx) => (
+          {/* Housekeeping table */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead className="text-xs text-slate-500">
+                <tr>
+                  <th className="py-2 text-left px-4">Name</th>
+                  <th className="py-2 text-left">Summary</th>
+                  <th className="py-2 text-left">Completion</th>
+                  <th className="py-2 text-left">Overdue</th>
+                  <th className="py-2 text-left">
+                    Progress / Plans / Problems
+                  </th>
+                  <th className="py-2 text-left">Happiness</th>
+                </tr>
+              </thead>
+              <tbody>
+                {housekeepingRows.map((r, idx) => {
+                  const totalBars = r.bars.reduce((a, b) => a + b, 0);
+                  return (
                     <tr
                       key={idx}
                       className={`border-t ${
@@ -552,16 +488,11 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
                       </td>
                       <td className="py-3 align-top">
                         <div className="w-full bg-slate-100 h-6 rounded overflow-hidden flex">
-                          {/* bars: progress (blue), plans (green), problems (amber) */}
-                          {r.bars && r.bars.reduce((a, b) => a + b, 0) > 0 ? (
+                          {totalBars > 0 ? (
                             <>
                               <div
                                 style={{
-                                  width: `${
-                                    (r.bars[0] /
-                                      r.bars.reduce((a, b) => a + b, 0)) *
-                                    100
-                                  }%`,
+                                  width: `${(r.bars[0] / totalBars) * 100}%`,
                                 }}
                                 className="bg-blue-600 text-white text-xs flex items-center justify-center"
                               >
@@ -569,11 +500,7 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
                               </div>
                               <div
                                 style={{
-                                  width: `${
-                                    (r.bars[1] /
-                                      r.bars.reduce((a, b) => a + b, 0)) *
-                                    100
-                                  }%`,
+                                  width: `${(r.bars[1] / totalBars) * 100}%`,
                                 }}
                                 className="bg-emerald-500 text-white text-xs flex items-center justify-center"
                               >
@@ -581,11 +508,7 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
                               </div>
                               <div
                                 style={{
-                                  width: `${
-                                    (r.bars[2] /
-                                      r.bars.reduce((a, b) => a + b, 0)) *
-                                    100
-                                  }%`,
+                                  width: `${(r.bars[2] / totalBars) * 100}%`,
                                 }}
                                 className="bg-amber-500 text-white text-xs flex items-center justify-center"
                               >
@@ -593,7 +516,9 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
                               </div>
                             </>
                           ) : (
-                            <div className="text-xs text-slate-400 px-2">-</div>
+                            <div className="text-xs text-slate-400 px-2">
+                              -
+                            </div>
                           )}
                         </div>
                       </td>
@@ -607,12 +532,12 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
                         )}
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        </main>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       </div>
     </div>
   );

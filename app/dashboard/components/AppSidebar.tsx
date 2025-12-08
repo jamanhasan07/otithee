@@ -28,7 +28,7 @@ export default function AppSidebar({ modules }: { modules: ModuleGroup[] }) {
     setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
 
   return (
-    <nav className="px-2 py-3 w-full overflow-y-auto overflow-x-hidden">
+    <nav className="px-2 py-3 w-full overflow-y-auto overflow-x-hidden ">
       {/* BRAND */}
       <Link
         href="/dashboard"

@@ -1,32 +1,69 @@
 "use client";
 
+import { useState } from "react";
+import { motion } from "framer-motion";
 import { DEFAULT_MODULES, ModuleGroup } from "@/lib/modules";
 import AppSidebar from "./AppSidebar";
 import Header from "./Header";
 
-type DashbaordLayoutWrapperProps = {
+type DashboardLayoutWrapperProps = {
   children: React.ReactNode;
   modules?: ModuleGroup[];
 };
 
-const DashboardLayoutWrapper: React.FC<DashbaordLayoutWrapperProps> = ({
-  modules = DEFAULT_MODULES,
+const DashboardLayoutWrapper: React.FC<DashboardLayoutWrapperProps> = ({
   children,
+  modules = DEFAULT_MODULES,
 }) => {
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  const toggleMobileSidebar = () => setIsMobileSidebarOpen((prev) => !prev);
+
   return (
-    // Whole viewport, no window scroll
     <div className="h-screen bg-slate-50 overflow-hidden">
-      {/* SIDEBAR (fixed, its own vertical scroll) */}
-      <aside className="w-72 h-screen overflow-y-auto border-r bg-white fixed left-0 top-0 z-40">
+      {/* MOBILE OVERLAY */}
+      {isMobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-20 bg-black/40 md:hidden"
+          onClick={toggleMobileSidebar}
+        />
+      )}
+
+      {/* MOBILE SIDEBAR (drawer) */}
+      <motion.aside
+        initial={false}
+        animate={{ x: isMobileSidebarOpen ? 0 : "-100%" }}
+        transition={{ type: "tween", duration: 0.25 }}
+        className="
+          fixed inset-y-0 left-0 z-30
+          w-72 bg-white border-r shadow-sm
+          overflow-y-auto
+          md:hidden
+        "
+      >
+        <AppSidebar modules={modules} />
+      </motion.aside>
+
+      {/* DESKTOP SIDEBAR (always visible) */}
+      <aside
+        className="
+          hidden md:block
+          fixed inset-y-0 left-0 z-20
+          w-72 bg-white border-r shadow-sm
+          overflow-y-auto
+        "
+      >
         <AppSidebar modules={modules} />
       </aside>
 
-      {/* CONTENT AREA shifted by sidebar width */}
-      <div className="h-full ml-72 flex flex-col">
-        {/* HEADER (no scroll here) */}
-        <Header />
+      {/* CONTENT AREA */}
+      <div className="h-full flex flex-col md:ml-72 transition-[margin] duration-300">
+        <Header
+          onToggleSidebar={toggleMobileSidebar}
+          // you can pass this if you want to change the icon
+          isSidebarOpen={isMobileSidebarOpen}
+        />
 
-        {/* MAIN CONTENT (only this scrolls besides sidebar) */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-5">
           {children}
         </main>

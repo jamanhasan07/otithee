@@ -23,7 +23,6 @@ type ModuleItem = {
   tag?: string;
   image: string;
   variant?: string;
-  // logical size: 1 = single, 2 = double width
   size?: 1 | 2;
   rows?: 1 | 2;
 };
@@ -150,24 +149,25 @@ const GRADIENTS: Record<string, string> = {
 export default function ModulesMosaicSingleColumnMobile() {
   const router = useRouter();
 
-  // responsive span helpers:
+  // No col-span on mobile; spans only start from md+
   const colSpanClass = (size?: number) => {
-    // mobile: col-span-1; md and lg adapt
-    if (size === 2) return "col-span-1 md:col-span-2 lg:col-span-4";
-    return "col-span-1 md:col-span-1 lg:col-span-2";
+    if (size === 2) return "md:col-span-2 lg:col-span-4";
+    return "md:col-span-1 lg:col-span-2";
   };
+
   const rowSpanClass = (rows?: number) => {
-    // mobile: row-span-1 always; lg may have taller rows
-    if (rows === 2) return "row-span-1 md:row-span-1 lg:row-span-2";
-    return "row-span-1";
+    if (rows === 2) return "lg:row-span-2";
+    return "";
   };
 
   return (
-    <section className="">
-      <h2 className="text-xl sm:text-2xl font-semibold mb-4">Otithee — Modules</h2>
+    <section className="px-3 sm:px-0">
+      <h2 className="text-xl sm:text-2xl font-semibold mb-4">
+        Otithee — Modules
+      </h2>
 
-      {/* Mobile: 1 column; md: 4 cols; lg: 6 cols */}
-      <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4 auto-rows-[120px]">
+      {/* 1 col mobile, 4 cols md, 6 cols lg. Rows grow with content */}
+      <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 auto-rows-[minmax(180px,_auto)]">
         {MODULES.map((m) => {
           const spanCls = `${colSpanClass(m.size)} ${rowSpanClass(m.rows)}`;
           const gradient = GRADIENTS[m.variant ?? "default"];
@@ -181,7 +181,13 @@ export default function ModulesMosaicSingleColumnMobile() {
               onKeyDown={(e) => {
                 if (e.key === "Enter" && m.path) router.push(m.path);
               }}
-              className={`relative rounded-2xl overflow-hidden shadow-lg transform transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${spanCls} h-56 md:h-auto`}
+              className={`
+                relative rounded-2xl overflow-hidden shadow-lg
+                transform transition-transform duration-300
+                focus:outline-none focus:ring-2 focus:ring-indigo-400
+                ${spanCls}
+                active:scale-[0.99] md:hover:scale-[1.02]
+              `}
             >
               {/* Background image */}
               <div
@@ -196,18 +202,18 @@ export default function ModulesMosaicSingleColumnMobile() {
                 aria-hidden
               />
 
-              {/* dark layer for contrast */}
+              {/* dark layer */}
               <div className="absolute inset-0 bg-black/25" aria-hidden />
 
               {/* Content */}
               <div className="relative z-10 h-full flex flex-col justify-between p-3 sm:p-4">
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="rounded-lg bg-white/20 p-2 backdrop-blur-sm text-white">
                       {m.icon}
                     </div>
-                    <div>
-                      <h3 className="text-base sm:text-lg font-semibold text-white truncate">
+                    <div className="min-w-0">
+                      <h3 className="text-sm sm:text-lg font-semibold text-white truncate">
                         {m.title}
                       </h3>
                       <p className="text-xs sm:text-sm text-white/90 mt-1 line-clamp-2">
@@ -216,21 +222,23 @@ export default function ModulesMosaicSingleColumnMobile() {
                     </div>
                   </div>
 
-                  <div className="hidden md:block">
+                  {/* Badge on md+ in top-right */}
+                  <div className="hidden md:block shrink-0">
                     {m.tag && <Badge variant="secondary">{m.tag}</Badge>}
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mt-2">
-                  <div className="text-xs text-white/80 hidden sm:block">{/* optional */}</div>
-
-                  <div className="md:hidden">
-                    {m.tag && <Badge variant="secondary">{m.tag}</Badge>}
-                  </div>
+                {/* Badge on mobile at bottom-right */}
+                <div className="flex items-center justify-end mt-2 md:hidden">
+                  {m.tag && (
+                    <Badge variant="secondary" className="text-[10px]">
+                      {m.tag}
+                    </Badge>
+                  )}
                 </div>
               </div>
 
-              {/* full-card anchor (accessibility) */}
+              {/* Anchor overlay (for semantics) */}
               <a
                 href={m.path ?? "#"}
                 aria-label={`${m.title} — open module`}
