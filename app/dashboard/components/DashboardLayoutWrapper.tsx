@@ -64,7 +64,7 @@ const DashboardLayoutWrapper: React.FC<DashboardLayoutWrapperProps> = ({
           isSidebarOpen={isMobileSidebarOpen}
         />
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-5">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-6">
           {children}
         </main>
       </div>
