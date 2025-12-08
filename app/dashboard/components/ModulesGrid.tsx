@@ -1,7 +1,9 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+
 import { Badge } from "@/components/ui/badge";
 import {
   CalendarDays,
@@ -37,7 +39,7 @@ const MODULES: ModuleItem[] = [
     path: "/hotel",
     tag: "Core",
     image:
-      "https://images.unsplash.com/photo-1501117716987-c8e1ecb210d8?w=1600&q=80&auto=format&fit=crop",
+      "https://plus.unsplash.com/premium_photo-1661964071015-d97428970584?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aG90ZWx8ZW58MHx8MHx8fDA%3D",
     variant: "violet",
     size: 2,
     rows: 1,
@@ -50,7 +52,7 @@ const MODULES: ModuleItem[] = [
     path: "/transport",
     tag: "Logistics",
     image:
-      "https://images.unsplash.com/photo-1506617420156-8e4536971650?w=1600&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1600&q=80&auto=format&fit=crop",
     variant: "teal",
     size: 1,
     rows: 1,
@@ -63,7 +65,7 @@ const MODULES: ModuleItem[] = [
     path: "/aviation",
     tag: "Travel",
     image:
-      "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1600&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1610642372677-bcddb69f3531?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YWlybGluZXxlbnwwfHwwfHx8MA%3D%3D",
     variant: "blue",
     size: 1,
     rows: 2,
@@ -89,7 +91,7 @@ const MODULES: ModuleItem[] = [
     path: "/city",
     tag: "Urban",
     image:
-      "https://images.unsplash.com/photo-1505988772020-6b0f1d6a862b?w=1600&q=80&auto=format&fit=crop",
+     " https://images.unsplash.com/photo-1449824913935-59a10b8d2000?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Y2l0eXxlbnwwfHwwfHx8MA%3D%3D",
     variant: "green",
     size: 1,
     rows: 1,
@@ -128,7 +130,7 @@ const MODULES: ModuleItem[] = [
     path: "/core",
     tag: "Platform",
     image:
-      "https://images.unsplash.com/photo-1532153975070-2c7c9af8a6dc?w=1600&q=80&auto=format&fit=crop",
+      "https://plus.unsplash.com/premium_photo-1679350313006-22fc8613ddff?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y29yZXxlbnwwfHwwfHx8MA%3D%3D",
     variant: "cyan",
     size: 1,
     rows: 1,
@@ -148,9 +150,6 @@ const GRADIENTS: Record<string, string> = {
 };
 
 export default function ModulesMosaicSingleColumnMobile() {
-  const router = useRouter();
-
-  // No col-span on mobile; spans only start from md+
   const colSpanClass = (size?: number) => {
     if (size === 2) return "md:col-span-2 lg:col-span-4";
     return "md:col-span-1 lg:col-span-2";
@@ -168,39 +167,35 @@ export default function ModulesMosaicSingleColumnMobile() {
         subTitle="Browse and open any Otithee ERP module from one place."
       />
 
-      {/* 1 col mobile, 4 cols md, 6 cols lg. Rows grow with content */}
       <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 auto-rows-[minmax(180px,_auto)]">
-        {MODULES.map((m) => {
+        {MODULES.map((m, index) => {
           const spanCls = `${colSpanClass(m.size)} ${rowSpanClass(m.rows)}`;
           const gradient = GRADIENTS[m.variant ?? "default"];
 
-          return (
+          const card = (
             <article
-              key={m.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => m.path && router.push(m.path)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && m.path) router.push(m.path);
-              }}
               className={`
-                relative rounded-2xl overflow-hidden shadow-lg
+                relative h-full rounded-2xl overflow-hidden shadow-lg
                 transform transition-transform duration-300
                 focus:outline-none focus:ring-2 focus:ring-indigo-400
-                ${spanCls}
                 active:scale-[0.99] md:hover:scale-[1.02]
               `}
             >
-              {/* Background image */}
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-500 will-change-transform"
-                style={{ backgroundImage: `url(${m.image})` }}
-                aria-hidden
-              />
+              {/* Background image via Next/Image */}
+              <div className="absolute inset-0">
+                <Image
+                  src={m.image}
+                  alt={m.title}
+                  fill
+                  className="object-cover"
+                  sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                  priority={index === 0} // first card loads eagerly
+                />
+              </div>
 
               {/* gradient overlay */}
               <div
-                className={`absolute inset-0 bg-gradient-to-r ${gradient} mix-blend-multiply opacity-90 transition-opacity duration-300`}
+                className={`absolute inset-0 bg-gradient-to-r ${gradient} mix-blend-multiply opacity-90`}
                 aria-hidden
               />
 
@@ -239,17 +234,22 @@ export default function ModulesMosaicSingleColumnMobile() {
                   )}
                 </div>
               </div>
-
-              {/* Anchor overlay (for semantics) */}
-              <a
-                href={m.path ?? "#"}
-                aria-label={`${m.title} — open module`}
-                className="absolute inset-0 z-0"
-                onClick={(e) => {
-                  if (m.path) e.preventDefault();
-                }}
-              />
             </article>
+          );
+
+          // Wrap card in Link if path exists
+          return m.path ? (
+            <Link
+              key={m.id}
+              href={m.path}
+              className={`${spanCls} group focus:outline-none`}
+            >
+              {card}
+            </Link>
+          ) : (
+            <div key={m.id} className={spanCls}>
+              {card}
+            </div>
           );
         })}
       </div>
