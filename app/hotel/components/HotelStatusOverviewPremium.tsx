@@ -293,64 +293,138 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
                 </div>
               </div>
 
-              {/* Booking list */}
-              <div className="mt-6">
-                <div className="text-sm text-slate-500 mb-3 font-medium">
-                  Booking list
-                </div>
-                <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
-                  <table className="min-w-full text-sm">
-                    <thead className="text-xs text-slate-500">
-                      <tr>
-                        <th className="py-3 text-left px-4">#</th>
-                        <th className="py-3 text-left">Guest</th>
-                        <th className="py-3 text-left">Type of Room</th>
-                        <th className="py-3 text-left">Check In</th>
-                        <th className="py-3 text-left">Check out</th>
-                        <th className="py-3 text-left">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-t">
-                        <td className="py-3 px-4">1</td>
-                        <td>Jordy Astaws</td>
-                        <td>Double Room</td>
-                        <td>01/09/24</td>
-                        <td>02/10/24</td>
-                        <td>
-                          <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">
-                            Paid
-                          </span>
-                        </td>
-                      </tr>
-                      <tr className="border-t">
-                        <td className="py-3 px-4">2</td>
-                        <td>Alisa Oon</td>
-                        <td>Double Room</td>
-                        <td>28/09/24</td>
-                        <td>01/10/24</td>
-                        <td>
-                          <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">
-                            Paid
-                          </span>
-                        </td>
-                      </tr>
-                      <tr className="border-t">
-                        <td className="py-3 px-4">3</td>
-                        <td>Brigette Guerra</td>
-                        <td>Double Room</td>
-                        <td>23/10/24</td>
-                        <td>22/11/24</td>
-                        <td>
-                          <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs">
-                            Pending
-                          </span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+          {/* Booking list */}
+<div className="mt-6">
+  <div className="text-sm text-slate-500 mb-3 font-medium">
+    Booking list
+  </div>
+
+  {/* Mobile: cards */}
+  <div className="space-y-3 sm:hidden">
+    {[
+      {
+        id: 1,
+        guest: "Jordy Astaws",
+        room: "Double Room",
+        in: "01/09/24",
+        out: "02/10/24",
+        status: "Paid",
+        statusClass: "bg-emerald-100 text-emerald-700",
+      },
+      {
+        id: 2,
+        guest: "Alisa Oon",
+        room: "Double Room",
+        in: "28/09/24",
+        out: "01/10/24",
+        status: "Paid",
+        statusClass: "bg-emerald-100 text-emerald-700",
+      },
+      {
+        id: 3,
+        guest: "Brigette Guerra",
+        room: "Double Room",
+        in: "23/10/24",
+        out: "22/11/24",
+        status: "Pending",
+        statusClass: "bg-amber-100 text-amber-700",
+      },
+    ].map((b) => (
+      <div
+        key={b.id}
+        className="rounded-lg border border-slate-200 bg-white px-3 py-3 text-xs text-slate-700"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <p className="text-[11px] text-slate-400">Guest</p>
+            <p className="font-semibold text-slate-900">{b.guest}</p>
+          </div>
+          <span
+            className={`px-2.5 py-1 rounded-full text-[11px] ${b.statusClass}`}
+          >
+            {b.status}
+          </span>
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <div>
+            <p className="text-[11px] text-slate-400">Type of Room</p>
+            <p className="text-[12px]">{b.room}</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-slate-400">Booking #</p>
+            <p className="text-[12px]">#{b.id}</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-slate-400">Check in</p>
+            <p className="text-[12px]">{b.in}</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-slate-400">Check out</p>
+            <p className="text-[12px]">{b.out}</p>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* Tablet / Desktop: table */}
+  <div className="hidden sm:block">
+    <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
+      <table className="min-w-full text-sm">
+        <thead className="text-xs text-slate-500">
+          <tr>
+            <th className="py-3 text-left px-4">#</th>
+            <th className="py-3 text-left">Guest</th>
+            <th className="py-3 text-left">Type of Room</th>
+            <th className="py-3 text-left">Check In</th>
+            <th className="py-3 text-left">Check out</th>
+            <th className="py-3 text-left">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="border-t">
+            <td className="py-3 px-4">1</td>
+            <td>Jordy Astaws</td>
+            <td>Double Room</td>
+            <td>01/09/24</td>
+            <td>02/10/24</td>
+            <td>
+              <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">
+                Paid
+              </span>
+            </td>
+          </tr>
+          <tr className="border-t">
+            <td className="py-3 px-4">2</td>
+            <td>Alisa Oon</td>
+            <td>Double Room</td>
+            <td>28/09/24</td>
+            <td>01/10/24</td>
+            <td>
+              <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">
+                Paid
+              </span>
+            </td>
+          </tr>
+          <tr className="border-t">
+            <td className="py-3 px-4">3</td>
+            <td>Brigette Guerra</td>
+            <td>Double Room</td>
+            <td>23/10/24</td>
+            <td>22/11/24</td>
+            <td>
+              <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs">
+                Pending
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
             </Card>
           </div>
 
@@ -401,7 +475,7 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
           </h3>
 
           {/* Rings row */}
-          <div className="flex flex-col sm:flex-row items-stretch gap-4 mb-4">
+          <div className=" grid grid-cols-4 gap-4 mb-4">
             {[
               { label: "Happiness", value: 4, color: "#0ea5e9" },
               { label: "Completion", value: 75, color: "#10b981" },
@@ -412,7 +486,7 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
                 key={i}
                 className="flex-1 p-3 bg-[#fbfcfd] rounded-lg flex items-center justify-center"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-col">
                   <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden>
                     <circle
                       cx="32"
@@ -452,74 +526,84 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
             ))}
           </div>
 
-          {/* Housekeeping table */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="text-xs text-slate-500">
-                <tr>
-                  <th className="py-2 text-left px-4">Name</th>
-                  <th className="py-2 text-left">Summary</th>
-                  <th className="py-2 text-left">Completion</th>
-                  <th className="py-2 text-left">Overdue</th>
-                  <th className="py-2 text-left">
-                    Progress / Plans / Problems
-                  </th>
-                  <th className="py-2 text-left">Happiness</th>
-                </tr>
-              </thead>
-              <tbody>
-                {housekeepingRows.map((r, idx) => {
-                  const totalBars = r.bars.reduce((a, b) => a + b, 0);
-                  return (
-                    <tr
-                      key={idx}
-                      className={`border-t ${
-                        idx % 2 === 0 ? "bg-white" : "bg-slate-50"
-                      }`}
-                    >
-                      <td className="py-3 px-4 align-top">{r.name}</td>
-                      <td className="py-3 align-top">{r.summary}</td>
-                      <td className="py-3 align-top text-blue-600 font-semibold">
-                        {r.completion ? `${r.completion}%` : "-"}
-                      </td>
-                      <td className="py-3 align-top text-amber-600">
-                        {r.overdue || "-"}
-                      </td>
-                      <td className="py-3 align-top">
-                        <div className="w-full bg-slate-100 h-6 rounded overflow-hidden flex">
-                          {totalBars > 0 ? (
-                            <>
-                              <div
-                                style={{
-                                  width: `${(r.bars[0] / totalBars) * 100}%`,
-                                }}
-                                className="bg-blue-600 text-white text-xs flex items-center justify-center"
-                              >
-                                {r.bars[0]}
-                              </div>
-                              <div
-                                style={{
-                                  width: `${(r.bars[1] / totalBars) * 100}%`,
-                                }}
-                                className="bg-emerald-500 text-white text-xs flex items-center justify-center"
-                              >
-                                {r.bars[1] || ""}
-                              </div>
-                              <div
-                                style={{
-                                  width: `${(r.bars[2] / totalBars) * 100}%`,
-                                }}
-                                className="bg-amber-500 text-white text-xs flex items-center justify-center"
-                              >
-                                {r.bars[2] || ""}
-                              </div>
-                            </>
-                          ) : (
-                            <div className="text-xs text-slate-400 px-2">-</div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3 align-top text-center">
+          {/* Housekeeping table - responsive */}
+          <div className="mt-4">
+            {/* Mobile: cards */}
+            <div className="space-y-3 sm:hidden">
+              {housekeepingRows.map((r, idx) => {
+                const totalBars = r.bars.reduce((a, b) => a + b, 0);
+
+                return (
+                  <div
+                    key={idx}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-xs text-slate-700"
+                  >
+                    {/* Top row: name + completion */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-semibold text-slate-900">{r.name}</p>
+                        <p className="mt-1 text-[11px] text-slate-500">
+                          {r.summary}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[11px] text-slate-500">Completion</p>
+                        <p className="text-sm font-semibold text-blue-600">
+                          {r.completion ? `${r.completion}%` : "-"}
+                        </p>
+                        <p className="mt-1 text-[11px] text-amber-600">
+                          Overdue: {r.overdue || "-"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Progress / Plans / Problems bar */}
+                    <div className="mt-3">
+                      <p className="mb-1 text-[11px] text-slate-500">
+                        Progress / Plans / Problems
+                      </p>
+                      <div className="w-full bg-slate-100 h-5 rounded overflow-hidden flex">
+                        {totalBars > 0 ? (
+                          <>
+                            <div
+                              style={{
+                                width: `${(r.bars[0] / totalBars) * 100}%`,
+                              }}
+                              className="bg-blue-600 text-white text-[10px] flex items-center justify-center"
+                            >
+                              {r.bars[0]}
+                            </div>
+                            <div
+                              style={{
+                                width: `${(r.bars[1] / totalBars) * 100}%`,
+                              }}
+                              className="bg-emerald-500 text-white text-[10px] flex items-center justify-center"
+                            >
+                              {r.bars[1] || ""}
+                            </div>
+                            <div
+                              style={{
+                                width: `${(r.bars[2] / totalBars) * 100}%`,
+                              }}
+                              className="bg-amber-500 text-white text-[10px] flex items-center justify-center"
+                            >
+                              {r.bars[2] || ""}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-[10px] text-slate-400 px-2 flex items-center">
+                            -
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Happiness */}
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-[11px] text-slate-500">
+                        Happiness
+                      </span>
+                      <span className="text-base">
                         {r.happy === 2 ? (
                           <span className="text-amber-400">★</span>
                         ) : r.happy === 1 ? (
@@ -527,12 +611,97 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
                         ) : (
                           <span className="text-slate-400">-</span>
                         )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop / tablet: original table */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead className="text-xs text-slate-500">
+                  <tr>
+                    <th className="py-2 text-left px-4">Name</th>
+                    <th className="py-2 text-left">Summary</th>
+                    <th className="py-2 text-left">Completion</th>
+                    <th className="py-2 text-left">Overdue</th>
+                    <th className="py-2 text-left">
+                      Progress / Plans / Problems
+                    </th>
+                    <th className="py-2 text-left">Happiness</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {housekeepingRows.map((r, idx) => {
+                    const totalBars = r.bars.reduce((a, b) => a + b, 0);
+                    return (
+                      <tr
+                        key={idx}
+                        className={`border-t ${
+                          idx % 2 === 0 ? "bg-white" : "bg-slate-50"
+                        }`}
+                      >
+                        <td className="py-3 px-4 align-top">{r.name}</td>
+                        <td className="py-3 align-top">{r.summary}</td>
+                        <td className="py-3 align-top text-blue-600 font-semibold">
+                          {r.completion ? `${r.completion}%` : "-"}
+                        </td>
+                        <td className="py-3 align-top text-amber-600">
+                          {r.overdue || "-"}
+                        </td>
+                        <td className="py-3 align-top">
+                          <div className="w-full bg-slate-100 h-6 rounded overflow-hidden flex">
+                            {totalBars > 0 ? (
+                              <>
+                                <div
+                                  style={{
+                                    width: `${(r.bars[0] / totalBars) * 100}%`,
+                                  }}
+                                  className="bg-blue-600 text-white text-xs flex items-center justify-center"
+                                >
+                                  {r.bars[0]}
+                                </div>
+                                <div
+                                  style={{
+                                    width: `${(r.bars[1] / totalBars) * 100}%`,
+                                  }}
+                                  className="bg-emerald-500 text-white text-xs flex items-center justify-center"
+                                >
+                                  {r.bars[1] || ""}
+                                </div>
+                                <div
+                                  style={{
+                                    width: `${(r.bars[2] / totalBars) * 100}%`,
+                                  }}
+                                  className="bg-amber-500 text-white text-xs flex items-center justify-center"
+                                >
+                                  {r.bars[2] || ""}
+                                </div>
+                              </>
+                            ) : (
+                              <div className="text-xs text-slate-400 px-2">
+                                -
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 align-top text-center">
+                          {r.happy === 2 ? (
+                            <span className="text-amber-400">★</span>
+                          ) : r.happy === 1 ? (
+                            <span className="text-amber-400">☆</span>
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </Card>
       </div>
