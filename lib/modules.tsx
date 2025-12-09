@@ -181,6 +181,9 @@ export const HOTEL_MODULES: ModuleGroup[] = [
       { title: "Rooms", href: "/hotel/rooms" },
       { title: "Housekeeping", href: "/hotel/housekeeping" },
       { title: "Maintenance", href: "/hotel/maintenance" },
+      { title: "Reservations", href: "/hotel/reservations" },
+      { title: "Front Desk", href: "/hotel/frontdesk" },
+      { title: "Guests", href: "/hotel/guests" },
     ],
   },
   {
@@ -433,9 +436,6 @@ export const TRANSPORT_MODULES: ModuleGroup[] = [
   },
 ];
 
-
-
-
 export const AVIATION_MODULES: ModuleGroup[] = [
   {
     id: "aviation",
@@ -545,10 +545,6 @@ export const AVIATION_MODULES: ModuleGroup[] = [
   },
 ];
 
-
-
-
-
 export const PROPERTY_MODULES: ModuleGroup[] = [
   {
     id: "property",
@@ -571,7 +567,10 @@ export const PROPERTY_MODULES: ModuleGroup[] = [
       { title: "Work Orders", href: "/property/maintenance/workorders" },
       { title: "Issue Tracking", href: "/property/maintenance/issues" },
       { title: "Asset Management", href: "/property/maintenance/assets" },
-      { title: "Technician Scheduling", href: "/property/maintenance/technicians" },
+      {
+        title: "Technician Scheduling",
+        href: "/property/maintenance/technicians",
+      },
     ],
   },
 
@@ -581,7 +580,10 @@ export const PROPERTY_MODULES: ModuleGroup[] = [
     icon: <ClipboardList className="w-5 h-5" />,
     items: [
       { title: "Property Inspections", href: "/property/inspections" },
-      { title: "Move-in / Move-out Checklist", href: "/property/inspections/moveinout" },
+      {
+        title: "Move-in / Move-out Checklist",
+        href: "/property/inspections/moveinout",
+      },
       { title: "Safety & Compliance", href: "/property/inspections/safety" },
     ],
   },
@@ -621,9 +623,6 @@ export const PROPERTY_MODULES: ModuleGroup[] = [
     ],
   },
 ];
-
-
-
 
 export const CITY_RESORT_MODULES: ModuleGroup[] = [
   {
@@ -722,8 +721,6 @@ export const CITY_RESORT_MODULES: ModuleGroup[] = [
   },
 ];
 
-
-
 export const TRAINING_MODULES: ModuleGroup[] = [
   {
     id: "training",
@@ -792,14 +789,14 @@ export const TRAINING_MODULES: ModuleGroup[] = [
     items: [
       { title: "Learner Progress", href: "/training/reports/progress" },
       { title: "Course Performance", href: "/training/reports/courses" },
-      { title: "Instructor Performance", href: "/training/reports/instructors" },
+      {
+        title: "Instructor Performance",
+        href: "/training/reports/instructors",
+      },
       { title: "Session Analytics", href: "/training/reports/sessions" },
     ],
   },
 ];
-
-
-
 
 export const ACCOUNTING_MODULES: ModuleGroup[] = [
   {
@@ -866,9 +863,6 @@ export const ACCOUNTING_MODULES: ModuleGroup[] = [
     ],
   },
 ];
-
-
-
 
 export const CORE_ERP_MODULES: ModuleGroup[] = [
   {

@@ -150,7 +150,7 @@ export default function RoomsPage() {
             <article key={room.id} className="group">
               <div className="rounded-xl overflow-hidden shadow-md bg-background">
                 <div className="relative h-44">
-                  <motion.div whileHover={{ scale: 1.04 }} transition={{ type: "spring", stiffness: 300 }}>
+                  <motion.div  transition={{ type: "spring", stiffness: 300 }}>
                     <Image src={room.img} alt={room.title} fill style={{ objectFit: "cover" }} />
                   </motion.div>
 
