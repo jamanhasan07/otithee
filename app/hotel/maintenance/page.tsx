@@ -92,7 +92,7 @@ export default function MaintenancePage() {
   }, [items]);
 
   return (
-    <main className="p-4 md:p-6 max-w-7xl mx-auto">
+    <main className="">
       {/* Page header */}
       <div className="mb-4 md:mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>

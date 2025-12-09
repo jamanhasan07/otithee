@@ -75,7 +75,7 @@ export default function RoomsPage() {
   });
 
   return (
-    <main className="p-6 max-w-7xl mx-auto">
+    <main className="">
       {/* HERO */}
       <section className="mb-8 grid gap-6 md:grid-cols-2 items-center">
         <div>
