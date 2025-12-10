@@ -1,4 +1,4 @@
-import React from "react";
+
 import HotelStatusOverviewAdobe from "./components/HotelStatusOverviewPremium";
 
 const HotelPage = () => {

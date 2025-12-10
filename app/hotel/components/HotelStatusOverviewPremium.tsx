@@ -437,8 +437,8 @@ export default function HotelStatusOverviewAdobe({ data }: { data?: any }) {
               </div>
               <div className="bg-white rounded-lg p-3">
                 <div className="grid grid-cols-7 gap-2 text-xs text-slate-400">
-                  {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
-                    <div key={d} className="text-center py-2">
+                  {["S", "M", "T", "W", "T", "F", "S"].map((d,i) => (
+                    <div key={i} className="text-center py-2">
                       {d}
                     </div>
                   ))}
