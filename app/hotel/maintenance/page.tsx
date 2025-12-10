@@ -295,7 +295,7 @@ export default function MaintenancePage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto md:justify-end">
           <Select
             value={statusFilter}
             onValueChange={(v) => setStatusFilter(v as any)}
@@ -375,7 +375,7 @@ export default function MaintenancePage() {
 
         {/* RIGHT: sidebar (overview, technicians, quick actions) */}
         <aside className="">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card>
               <CardHeader>
                 <CardTitle>Overview</CardTitle>

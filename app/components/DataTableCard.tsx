@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, MoreHorizontal, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, SlidersHorizontal } from "lucide-react";
 
 export type DataTableColumn<T> = {
   id: string;
@@ -123,7 +123,8 @@ export function DataTableCard<T>({
       </CardHeader>
 
       <CardContent className="p-0">
-        <div className="w-full overflow-x-auto">
+        {/* Desktop table */}
+        <div className="hidden md:block w-full overflow-x-auto">
           <Table className="w-full">
             <TableHeader>
               <TableRow>
@@ -173,6 +174,40 @@ export function DataTableCard<T>({
               )}
             </TableBody>
           </Table>
+        </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-3 px-3 pb-3 pt-1">
+          {filtered.map((row, idx) => (
+            <div
+              key={idx}
+              className="border rounded-lg bg-white shadow-sm p-3"
+            >
+              {columns.map(
+                (col) =>
+                  visibleCols[col.id] && (
+                    <div key={col.id} className="mb-2 last:mb-0">
+                      <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                        {col.label}
+                      </div>
+                      <div className="mt-1 text-sm">{col.cell(row)}</div>
+                    </div>
+                  )
+              )}
+
+              {renderRowActions && (
+                <div className="mt-3 flex justify-end">
+                  {renderRowActions(row)}
+                </div>
+              )}
+            </div>
+          ))}
+
+          {filtered.length === 0 && (
+            <div className="text-center py-4 text-sm text-muted-foreground">
+              No data found.
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
