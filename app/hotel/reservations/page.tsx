@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -18,18 +17,33 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
+// ✅ import reusable table
+import {
+  DataTableCard,
+  DataTableColumn,
+} from "@/app/components/DataTableCard"; // adjust path if needed
 
 type Reservation = {
   id: string;
   guestName: string;
-  room?: string; // assigned room number or undefined
-  checkIn: string; // ISO date
-  checkOut: string; // ISO date
+  room?: string;
+  checkIn: string;
+  checkOut: string;
   status: "Booked" | "Checked-in" | "Checked-out" | "No-show" | "Cancelled";
   rate: number;
   pax: number;
-  source?: string; // OTA / Direct / Walk-in
+  source?: string;
   notes?: string;
 };
 
@@ -95,21 +109,22 @@ const statusColors: Record<Reservation["status"], string> = {
 export default function ReservationsPage() {
   const router = useRouter();
   const [items, setItems] = useState<Reservation[]>(SAMPLE_RESERVATIONS);
-  const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | Reservation["status"]>("all");
-  const [dateFilter, setDateFilter] = useState<"all" | "today" | "upcoming" | "past">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | Reservation["status"]
+  >("all");
+  const [dateFilter, setDateFilter] = useState<
+    "all" | "today" | "upcoming" | "past"
+  >("all");
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [detail, setDetail] = useState<Reservation | null>(null);
 
   const selectedIds = Object.keys(selected).filter((k) => selected[k]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+  const filteredByStatusAndDate = useMemo(() => {
     const now = new Date();
     return items.filter((r) => {
-      const hay = `${r.id} ${r.guestName} ${r.room || ""} ${r.source || ""} ${r.notes || ""}`.toLowerCase();
-      const matchesQ = q === "" ? true : hay.includes(q);
-      const matchesStatus = statusFilter === "all" ? true : r.status === statusFilter;
+      const matchesStatus =
+        statusFilter === "all" ? true : r.status === statusFilter;
       let matchesDate = true;
       if (dateFilter === "today") {
         const ci = new Date(r.checkIn);
@@ -120,9 +135,9 @@ export default function ReservationsPage() {
       } else if (dateFilter === "past") {
         matchesDate = new Date(r.checkOut) < now;
       }
-      return matchesQ && matchesStatus && matchesDate;
+      return matchesStatus && matchesDate;
     });
-  }, [items, query, statusFilter, dateFilter]);
+  }, [items, statusFilter, dateFilter]);
 
   // actions
   function toggleSelect(id: string) {
@@ -131,249 +146,400 @@ export default function ReservationsPage() {
 
   function bulkCancel() {
     if (selectedIds.length === 0) return;
-    setItems((prev) => prev.map((p) => (selectedIds.includes(p.id) ? { ...p, status: "Cancelled" } : p)));
+    setItems((prev) =>
+      prev.map((p) =>
+        selectedIds.includes(p.id) ? { ...p, status: "Cancelled" } : p,
+      ),
+    );
     setSelected({});
   }
 
   function checkIn(id: string) {
-    setItems((prev) => prev.map((p) => (p.id === id ? { ...p, status: "Checked-in", room: p.room ?? "TBD" } : p)));
+    setItems((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, status: "Checked-in", room: p.room ?? "TBD" } : p,
+      ),
+    );
     setDetail(null);
   }
 
   function checkOut(id: string) {
-    setItems((prev) => prev.map((p) => (p.id === id ? { ...p, status: "Checked-out" } : p)));
+    setItems((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, status: "Checked-out" } : p,
+      ),
+    );
     setDetail(null);
   }
 
   function cancelReservation(id: string) {
-    setItems((prev) => prev.map((p) => (p.id === id ? { ...p, status: "Cancelled" } : p)));
+    setItems((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, status: "Cancelled" } : p,
+      ),
+    );
     setDetail(null);
   }
 
   function assignRoom(id: string, roomNo?: string) {
-    setItems((prev) => prev.map((p) => (p.id === id ? { ...p, room: roomNo } : p)));
+    setItems((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, room: roomNo } : p)),
+    );
   }
 
-  // derived summaries
-  const totals = useMemo(() => {
-    return {
+  const totals = useMemo(
+    () => ({
       total: items.length,
       booked: items.filter((i) => i.status === "Booked").length,
       checkedIn: items.filter((i) => i.status === "Checked-in").length,
       checkedOut: items.filter((i) => i.status === "Checked-out").length,
-    };
-  }, [items]);
+    }),
+    [items],
+  );
+
+  // 👇 define columns for the reusable table
+  const columns: DataTableColumn<Reservation>[] = [
+    {
+      id: "select",
+      label: "",
+
+      cell: (r) => (
+        <input
+          type="checkbox"
+          checked={!!selected[r.id]}
+          onChange={() => toggleSelect(r.id)}
+          className="mt-0.5"
+          aria-label={`Select ${r.id}`}
+        />
+      ),
+    },
+    {
+      id: "status",
+      label: "Status",
+      searchable: (r) => r.status,
+      cell: (r) => (
+        <span
+          className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded border ${statusColors[r.status]}`}
+        >
+          {r.status}
+        </span>
+      ),
+    },
+    {
+      id: "guest",
+      label: "Guest",
+      searchable: (r) => `${r.guestName} ${r.id}`,
+      cell: (r) => (
+        <div>
+          <div className="font-medium">{r.guestName}</div>
+          <div className="text-[11px] text-muted-foreground">{r.id}</div>
+        </div>
+      ),
+    },
+    {
+      id: "room",
+      label: "Room",
+      searchable: (r) => r.room ?? "",
+      cell: (r) =>
+        r.room ?? (
+          <span className="text-xs text-muted-foreground">Unassigned</span>
+        ),
+    },
+    {
+      id: "checkIn",
+      label: "Check-in",
+      searchable: (r) => r.checkIn,
+      cell: (r) => (
+        <span className="text-xs" suppressHydrationWarning>
+          {new Date(r.checkIn).toLocaleString("en-GB", { timeZone: "UTC" })}
+        </span>
+      ),
+    },
+    {
+      id: "checkOut",
+      label: "Check-out",
+      searchable: (r) => r.checkOut,
+      cell: (r) => (
+        <span className="text-xs" suppressHydrationWarning>
+          {new Date(r.checkOut).toLocaleString("en-GB", { timeZone: "UTC" })}
+        </span>
+      ),
+    },
+    {
+      id: "rate",
+      label: "Rate",
+      searchable: (r) => String(r.rate),
+      cell: (r) => <span className="text-sm">${r.rate}/nt</span>,
+    },
+    {
+      id: "pax",
+      label: "Pax",
+      searchable: (r) => String(r.pax),
+      cell: (r) => <span className="text-sm">{r.pax}</span>,
+    },
+    {
+      id: "source",
+      label: "Source",
+      searchable: (r) => r.source || "",
+      cell: (r) => <span className="text-sm">{r.source || "Direct"}</span>,
+    },
+    {
+      id: "notes",
+      label: "Notes",
+      searchable: (r) => r.notes || "",
+      cell: (r) => (
+        <p className="text-xs text-muted-foreground line-clamp-2">
+          {r.notes ?? "—"}
+        </p>
+      ),
+    },
+  ];
 
   return (
     <main className="">
-      {/* Header */}
+      {/* Header filters */}
       <div className="mb-4 md:mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">Reservations</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage bookings, check-ins, check-outs and room assignments.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage bookings, check-ins, check-outs and room assignments.
+          </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-          <Input
-            placeholder="Search by guest, id, room..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full sm:w-72"
-          />
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => setStatusFilter(v as any)}
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="Booked">Booked</SelectItem>
+              <SelectItem value="Checked-in">Checked-in</SelectItem>
+              <SelectItem value="Checked-out">Checked-out</SelectItem>
+              <SelectItem value="No-show">No-show</SelectItem>
+              <SelectItem value="Cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
 
-          <div className="flex gap-2 items-center">
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-              <SelectTrigger className="w-36">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="Booked">Booked</SelectItem>
-                <SelectItem value="Checked-in">Checked-in</SelectItem>
-                <SelectItem value="Checked-out">Checked-out</SelectItem>
-                <SelectItem value="No-show">No-show</SelectItem>
-                <SelectItem value="Cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
+          <Select
+            value={dateFilter}
+            onValueChange={(v) => setDateFilter(v as any)}
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Date range" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All dates</SelectItem>
+              <SelectItem value="today">Today (in house)</SelectItem>
+              <SelectItem value="upcoming">Upcoming</SelectItem>
+              <SelectItem value="past">Past</SelectItem>
+            </SelectContent>
+          </Select>
 
-            <Select value={dateFilter} onValueChange={(v) => setDateFilter(v as any)}>
-              <SelectTrigger className="w-36">
-                <SelectValue placeholder="Date" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="upcoming">Upcoming</SelectItem>
-                <SelectItem value="past">Past</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button onClick={bulkCancel} disabled={selectedIds.length === 0}>Cancel selected ({selectedIds.length})</Button>
-          </div>
+          <Button onClick={bulkCancel} disabled={selectedIds.length === 0}>
+            Cancel selected ({selectedIds.length})
+          </Button>
         </div>
       </div>
 
-      {/* Main layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* list (spans 2 cols on md) */}
-        <div className="md:col-span-2">
-          <div className="space-y-4">
-            {filtered.map((r) => (
-              <article
-                key={r.id}
-                className="grid grid-cols-1 sm:grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_minmax(140px,180px)_minmax(120px,220px)] gap-3 items-start p-4 border rounded-lg bg-white shadow-sm hover:shadow-md transition min-h-[96px]"
-                aria-labelledby={`res-${r.id}`}
+      {/* Table + sidebar */}
+      <div className="flex flex-col gap-4">
+        {/* TABLE USING REUSABLE COMPONENT */}
+        <DataTableCard
+          data={filteredByStatusAndDate}
+          columns={columns}
+          searchPlaceholder="Search (guest, ID, room, source...)"
+          renderRowActions={(r) => (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 p-0"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setDetail(r)}>
+                  View details
+                </DropdownMenuItem>
+
+                {r.status === "Booked" && (
+                  <DropdownMenuItem onClick={() => checkIn(r.id)}>
+                    Check-in
+                  </DropdownMenuItem>
+                )}
+
+                {r.status === "Checked-in" && (
+                  <DropdownMenuItem onClick={() => checkOut(r.id)}>
+                    Check-out
+                  </DropdownMenuItem>
+                )}
+
+                <DropdownMenuItem
+                  onClick={() => cancelReservation(r.id)}
+                >
+                  Cancel reservation
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        />
+
+        {/* Sidebar summary + quick actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Total</span>
+                  <span>{totals.total}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Booked</span>
+                  <span>{totals.booked}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Checked-in</span>
+                  <span>{totals.checkedIn}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Checked-out</span>
+                  <span>{totals.checkedOut}</span>
+                </div>
+              </div>
+
+              <Button
+                className="mt-4 w-full"
+                onClick={() => router.push("/reservations/calendar")}
               >
-                {/* checkbox */}
-                <div className="flex items-start">
-                  <input
-                    type="checkbox"
-                    checked={!!selected[r.id]}
-                    onChange={() => toggleSelect(r.id)}
-                    className="mt-1"
-                    aria-label={`Select ${r.id}`}
-                  />
-                </div>
+                Open calendar
+              </Button>
+            </CardContent>
+          </Card>
 
-                {/* main content */}
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 id={`res-${r.id}`} className="font-semibold truncate">
-                      {r.guestName}
-                    </h3>
-
-                    <span className="text-xs text-muted-foreground">• {r.source || "Direct"}</span>
-
-                    <span className="ml-2 inline-flex items-center text-xs font-medium px-2 py-0.5 rounded border bg-slate-50 text-slate-800 border-slate-100">
-                      {r.pax} pax
-                    </span>
-
-                    <span className={`ml-2 inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded border ${statusColors[r.status]}`}>
-                      {r.status}
-                    </span>
-                  </div>
-
-                  <div className="mt-1 text-sm text-muted-foreground truncate max-w-prose">
-                    {r.notes ?? "—"}
-                  </div>
-
-                  <div className="mt-2 text-xs text-muted-foreground flex flex-wrap gap-3">
-                    <div>Check-in: {new Date(r.checkIn).toLocaleString()}</div>
-                    <div>Check-out: {new Date(r.checkOut).toLocaleString()}</div>
-                    <div>Rate: ${r.rate}/nt</div>
-                    <div>Res#: <span className="font-medium">{r.id}</span></div>
-                  </div>
-                </div>
-
-                {/* room & dates (md column) */}
-                <div className="hidden md:flex flex-col items-start md:items-center gap-2">
-                  <div className="text-sm">Room</div>
-                  <div className="text-lg font-semibold">{r.room ?? "Unassigned"}</div>
-                </div>
-
-                {/* actions */}
-                <div className="flex flex-col items-end gap-2">
-                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                    {r.status === "Booked" && (
-                      <Button size="sm" className="w-full sm:w-auto" onClick={() => { setDetail(r); }}>View</Button>
-                    )}
-                    {r.status === "Booked" && (
-                      <Button size="sm" variant="ghost" className="w-full sm:w-auto" onClick={() => checkIn(r.id)}>Check-in</Button>
-                    )}
-                    {r.status === "Checked-in" && (
-                      <Button size="sm" className="w-full sm:w-auto" onClick={() => checkOut(r.id)}>Check-out</Button>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2 w-full sm:w-auto">
-                    <Button size="sm" variant="outline" onClick={() => setDetail(r)}>Details</Button>
-                    <Button size="sm" variant="ghost" onClick={() => cancelReservation(r.id)}>Cancel</Button>
-                  </div>
-                </div>
-              </article>
-            ))}
-
-            {filtered.length === 0 && (
-              <div className="text-sm text-muted-foreground">No reservations found.</div>
-            )}
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-2">
+                <Button onClick={() => router.push("/reservations/new")}>
+                  New Reservation
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setItems(SAMPLE_RESERVATIONS);
+                    setSelected({});
+                  }}
+                >
+                  Reset demo
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-
-        {/* sidebar */}
-        <aside className="md:sticky md:top-6">
-          <div className="space-y-4">
-            <Card>
-              <CardHeader><CardTitle>Summary</CardTitle></CardHeader>
-              <CardContent>
-                <div className="grid gap-2 text-sm">
-                  <div className="flex justify-between"><span>Total</span><span>{totals.total}</span></div>
-                  <div className="flex justify-between"><span>Booked</span><span>{totals.booked}</span></div>
-                  <div className="flex justify-between"><span>Checked-in</span><span>{totals.checkedIn}</span></div>
-                  <div className="flex justify-between"><span>Checked-out</span><span>{totals.checkedOut}</span></div>
-                </div>
-
-                <Button className="mt-4 w-full" onClick={() => router.push("/reservations/calendar")}>Open calendar</Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader><CardTitle>Quick Actions</CardTitle></CardHeader>
-              <CardContent>
-                <div className="flex flex-col gap-2">
-                  <Button onClick={() => { /* create reservation flow */ router.push("/reservations/new"); }}>New Reservation</Button>
-                  <Button variant="ghost" onClick={() => { setItems(SAMPLE_RESERVATIONS); setSelected({}); }}>Reset demo</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </aside>
       </div>
 
-      {/* detail dialog */}
+      {/* Detail dialog stays the same */}
       <Dialog open={!!detail} onOpenChange={() => setDetail(null)}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Reservation Details</DialogTitle>
           </DialogHeader>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <h3 className="text-lg font-semibold">{detail?.guestName}</h3>
-              <div className="text-sm text-muted-foreground mt-1">Res#: {detail?.id}</div>
-
-              <div className="mt-4 text-sm">
-                <div><strong>Check-in:</strong> {detail && new Date(detail.checkIn).toLocaleString()}</div>
-                <div><strong>Check-out:</strong> {detail && new Date(detail.checkOut).toLocaleString()}</div>
-                <div><strong>Room:</strong> {detail?.room ?? "Unassigned"}</div>
-                <div><strong>Rate:</strong> ${detail?.rate}/nt</div>
-                <div className="mt-2"><strong>Notes:</strong><div className="text-muted-foreground mt-1">{detail?.notes ?? "—"}</div></div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex flex-col gap-2">
-                <Button onClick={() => { if (detail) { checkIn(detail.id); } }}>Check-in</Button>
-                <Button variant="outline" onClick={() => { if (detail) { checkOut(detail.id); } }}>Check-out</Button>
-                <Button variant="ghost" onClick={() => { if (detail) { cancelReservation(detail.id); } }}>Cancel Reservation</Button>
-              </div>
-
+          {detail && (
+            <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <h4 className="text-sm font-medium mb-2">Assign Room</h4>
-                <div className="flex gap-2">
-                  <Input placeholder="Room no." className="flex-1" id="assign-room-input" />
-                  <Button onClick={() => {
-                    const el = document.getElementById("assign-room-input") as HTMLInputElement | null;
-                    if (!el || !detail) return;
-                    const val = el.value.trim();
-                    if (!val) return;
-                    assignRoom(detail.id, val);
-                    el.value = "";
-                    setDetail({ ...detail, room: val });
-                  }}>Assign</Button>
+                <h3 className="text-lg font-semibold">{detail.guestName}</h3>
+                <div className="text-sm text-muted-foreground mt-1">
+                  Res#: {detail.id}
+                </div>
+
+                <div className="mt-4 text-sm space-y-1">
+                  <div>
+                    <strong>Check-in:</strong>{" "}
+                    <span suppressHydrationWarning>
+                      {new Date(detail.checkIn).toLocaleString("en-GB", {
+                        timeZone: "UTC",
+                      })}
+                    </span>
+                  </div>
+                  <div>
+                    <strong>Check-out:</strong>{" "}
+                    <span suppressHydrationWarning>
+                      {new Date(detail.checkOut).toLocaleString("en-GB", {
+                        timeZone: "UTC",
+                      })}
+                    </span>
+                  </div>
+                  <div>
+                    <strong>Room:</strong> {detail.room ?? "Unassigned"}
+                  </div>
+                  <div>
+                    <strong>Rate:</strong> ${detail.rate}/nt
+                  </div>
+                  <div className="mt-2">
+                    <strong>Notes:</strong>
+                    <div className="text-muted-foreground mt-1">
+                      {detail.notes ?? "—"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex flex-col gap-2">
+                  <Button onClick={() => checkIn(detail.id)}>Check-in</Button>
+                  <Button variant="outline" onClick={() => checkOut(detail.id)}>
+                    Check-out
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => cancelReservation(detail.id)}
+                  >
+                    Cancel Reservation
+                  </Button>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Assign Room</h4>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Room no."
+                      className="flex-1"
+                      id="assign-room-input"
+                    />
+                    <Button
+                      onClick={() => {
+                        const el = document.getElementById(
+                          "assign-room-input",
+                        ) as HTMLInputElement | null;
+                        if (!el) return;
+                        const val = el.value.trim();
+                        if (!val) return;
+                        assignRoom(detail.id, val);
+                        el.value = "";
+                        setDetail({ ...detail, room: val });
+                      }}
+                    >
+                      Assign
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </DialogContent>
       </Dialog>
     </main>

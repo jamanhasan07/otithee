@@ -25,23 +25,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, MoreHorizontal, SlidersHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
+
+import {
+  DataTableCard,
+  DataTableColumn,
+} from "@/app/components/DataTableCard"; // ⬅️ update path if needed
 
 type Task = {
   id: string;
@@ -103,38 +99,22 @@ const SAMPLE_TASKS: Task[] = [
 export default function HousekeepingPage() {
   const router = useRouter();
 
-  // state
   const [tasks, setTasks] = useState<Task[]>(SAMPLE_TASKS);
-  const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | Task["status"]>(
     "all",
   );
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [openAssign, setOpenAssign] = useState<Task | null>(null);
 
-  // simple column visibility (like shadcn data table)
-  const [visibleColumns, setVisibleColumns] = useState({
-    room: true,
-    type: true,
-    status: true,
-    priority: true,
-    assigned: true,
-    notes: true,
-  });
-
   // derived
   const selectedIds = Object.keys(selected).filter((k) => selected[k]);
+  const selectedCount = selectedIds.length;
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return tasks.filter((t) => {
-      const hay = `${t.room} ${t.assigned} ${t.notes} ${t.type}`.toLowerCase();
-      const matchesQ = q === "" ? true : hay.includes(q);
-      const matchesStatus =
-        statusFilter === "all" ? true : t.status === statusFilter;
-      return matchesQ && matchesStatus;
-    });
-  }, [tasks, query, statusFilter]);
+    return tasks.filter((t) =>
+      statusFilter === "all" ? true : t.status === statusFilter,
+    );
+  }, [tasks, statusFilter]);
 
   // actions
   function toggleSelect(id: string) {
@@ -142,7 +122,7 @@ export default function HousekeepingPage() {
   }
 
   function bulkMarkCleaned() {
-    if (selectedIds.length === 0) return;
+    if (!selectedIds.length) return;
     setTasks((prev) =>
       prev.map((t) =>
         selectedIds.includes(t.id) ? { ...t, status: "Cleaned" } : t,
@@ -174,15 +154,75 @@ export default function HousekeepingPage() {
     );
   }
 
-  // small helper to style badge variants (you can still use if needed)
-  const badgeForStatus = (s: Task["status"]) => {
-    switch (s) {
-      case "Cleaned":
-        return "secondary";
-      default:
-        return undefined;
-    }
-  };
+  // table columns for the shared DataTableCard
+  const columns: DataTableColumn<Task>[] = [
+    {
+      id: "select",
+      label: "",
+
+      cell: (t) => (
+        <input
+          aria-label={`Select task ${t.id}`}
+          type="checkbox"
+          checked={!!selected[t.id]}
+          onChange={() => toggleSelect(t.id)}
+          className="mt-0.5"
+        />
+      ),
+    },
+    {
+      id: "room",
+      label: "Room",
+      searchable: (t) => t.room,
+      cell: (t) => (
+        <span className="font-medium text-sm">Room {t.room}</span>
+      ),
+    },
+    {
+      id: "type",
+      label: "Type",
+      searchable: (t) => t.type,
+      cell: (t) => (
+        <Badge className="text-xs py-0.5 px-2">{t.type}</Badge>
+      ),
+    },
+    {
+      id: "status",
+      label: "Status",
+      searchable: (t) => t.status,
+      cell: (t) => (
+        <span
+          className={`px-2 py-1 text-xs font-semibold rounded border ${statusColors[t.status]}`}
+        >
+          {t.status}
+        </span>
+      ),
+    },
+    {
+      id: "priority",
+      label: "Priority",
+      searchable: (t) => t.priority,
+      cell: (t) => <span className="text-sm">{t.priority}</span>,
+    },
+    {
+      id: "assigned",
+      label: "Assigned",
+      searchable: (t) => t.assigned,
+      cell: (t) => (
+        <span className="text-sm font-medium">{t.assigned}</span>
+      ),
+    },
+    {
+      id: "notes",
+      label: "Notes",
+      searchable: (t) => t.notes,
+      cell: (t) => (
+        <p className="text-xs text-muted-foreground line-clamp-2">
+          {t.notes}
+        </p>
+      ),
+    },
+  ];
 
   return (
     <main className="">
@@ -213,249 +253,54 @@ export default function HousekeepingPage() {
             </SelectContent>
           </Select>
 
-          <Button onClick={bulkMarkCleaned} disabled={selectedIds.length === 0}>
-            Mark Cleaned ({selectedIds.length})
+          <Button
+            onClick={bulkMarkCleaned}
+            disabled={selectedCount === 0}
+          >
+            Mark Cleaned ({selectedCount})
           </Button>
         </div>
       </div>
 
-      {/* Layout */}
+      {/* Main layout */}
       <div className="flex flex-col gap-4">
-        {/* LEFT: table (2 cols) */}
-        <div className="">
-          <Card className="overflow-hidden">
-            <CardHeader className="pb-3">
-              <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
-                {/* Filter input with small button (like screenshot) */}
-                <div className="relative w-full sm:w-72">
-                  <Input
-                    placeholder="Search (room, staff, notes, type...)"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    className="pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                  >
-                    <SlidersHorizontal className="h-4 w-4" />
-                  </Button>
-                </div>
+        {/* Shared table card (search + columns + row actions) */}
+        <DataTableCard<Task>
+          data={filtered}
+          columns={columns}
+          searchPlaceholder="Search (room, staff, notes, type...)"
+          renderRowActions={(t) => (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 p-0"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setOpenAssign(t)}>
+                  Assign cleaner
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => resetToPending(t.id)}
+                >
+                  Reset to pending
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => markCleaned(t.id)}>
+                  Mark cleaned
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        />
 
-                {/* Columns dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="inline-flex items-center gap-1"
-                    >
-                      Columns
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuCheckboxItem
-                      checked={visibleColumns.room}
-                      onCheckedChange={(v) =>
-                        setVisibleColumns((c) => ({ ...c, room: !!v }))
-                      }
-                    >
-                      Room
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={visibleColumns.type}
-                      onCheckedChange={(v) =>
-                        setVisibleColumns((c) => ({ ...c, type: !!v }))
-                      }
-                    >
-                      Type
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={visibleColumns.status}
-                      onCheckedChange={(v) =>
-                        setVisibleColumns((c) => ({ ...c, status: !!v }))
-                      }
-                    >
-                      Status
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={visibleColumns.priority}
-                      onCheckedChange={(v) =>
-                        setVisibleColumns((c) => ({ ...c, priority: !!v }))
-                      }
-                    >
-                      Priority
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={visibleColumns.assigned}
-                      onCheckedChange={(v) =>
-                        setVisibleColumns((c) => ({ ...c, assigned: !!v }))
-                      }
-                    >
-                      Assigned
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={visibleColumns.notes}
-                      onCheckedChange={(v) =>
-                        setVisibleColumns((c) => ({ ...c, notes: !!v }))
-                      }
-                    >
-                      Notes
-                    </DropdownMenuCheckboxItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </CardHeader>
-
-            <CardContent className="p-0">
-              <div className="w-full overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[40px]" />
-                      {visibleColumns.room && (
-                        <TableHead className="w-[80px]">Room</TableHead>
-                      )}
-                      {visibleColumns.type && (
-                        <TableHead className="w-[120px]">Type</TableHead>
-                      )}
-                      {visibleColumns.status && (
-                        <TableHead className="w-[120px]">Status</TableHead>
-                      )}
-                      {visibleColumns.priority && (
-                        <TableHead className="w-[120px]">Priority</TableHead>
-                      )}
-                      {visibleColumns.assigned && (
-                        <TableHead className="w-[140px]">Assigned</TableHead>
-                      )}
-                      {visibleColumns.notes && (
-                        <TableHead className="min-w-[220px]">Notes</TableHead>
-                      )}
-                      <TableHead className="w-[60px] text-right">
-                        {/* actions */}
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-
-                  <TableBody>
-                    {filtered.map((t) => (
-                      <TableRow key={t.id} className="align-top">
-                        {/* checkbox */}
-                        <TableCell className="align-top pt-4">
-                          <input
-                            aria-label={`Select task ${t.id}`}
-                            type="checkbox"
-                            checked={!!selected[t.id]}
-                            onChange={() => toggleSelect(t.id)}
-                            className="mt-1"
-                          />
-                        </TableCell>
-
-                        {visibleColumns.room && (
-                          <TableCell className="align-top pt-4">
-                            <span className="font-medium">Room {t.room}</span>
-                          </TableCell>
-                        )}
-
-                        {visibleColumns.type && (
-                          <TableCell className="align-top pt-4">
-                            <Badge className="text-xs py-0.5 px-2">
-                              {t.type}
-                            </Badge>
-                          </TableCell>
-                        )}
-
-                        {visibleColumns.status && (
-                          <TableCell className="align-top pt-4">
-                            <span
-                              className={`px-2 py-1 text-xs font-semibold rounded border ${
-                                statusColors[t.status]
-                              }`}
-                            >
-                              {t.status}
-                            </span>
-                          </TableCell>
-                        )}
-
-                        {visibleColumns.priority && (
-                          <TableCell className="align-top pt-4 text-sm">
-                            {t.priority}
-                          </TableCell>
-                        )}
-
-                        {visibleColumns.assigned && (
-                          <TableCell className="align-top pt-4 text-sm">
-                            <div className="font-medium">{t.assigned}</div>
-                          </TableCell>
-                        )}
-
-                        {visibleColumns.notes && (
-                          <TableCell className="align-top pt-4">
-                            <p className="text-xs text-muted-foreground line-clamp-2">
-                              {t.notes}
-                            </p>
-                          </TableCell>
-                        )}
-
-                        {/* Actions ellipsis menu */}
-                        <TableCell className="align-top pt-3 text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 p-0"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-44">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => setOpenAssign(t)}
-                              >
-                                Assign cleaner
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => resetToPending(t.id)}
-                              >
-                                Reset to pending
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => markCleaned(t.id)}
-                              >
-                                Mark cleaned
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-
-                    {filtered.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={8} className="text-center py-6">
-                          <span className="text-sm text-muted-foreground">
-                            No tasks match your filters.
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* RIGHT: Overview + Staff summary + Quick actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {/* Overview / staff / quick actions row under the table */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <Card>
             <CardHeader>
               <CardTitle>Overview</CardTitle>
@@ -478,7 +323,10 @@ export default function HousekeepingPage() {
                 <div className="flex justify-between">
                   <span>In Progress</span>
                   <span>
-                    {tasks.filter((t) => t.status === "In Progress").length}
+                    {
+                      tasks.filter((t) => t.status === "In Progress")
+                        .length
+                    }
                   </span>
                 </div>
                 <div className="flex justify-between">

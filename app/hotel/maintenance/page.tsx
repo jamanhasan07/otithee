@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -24,23 +23,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, MoreHorizontal, SlidersHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
+
+// ✅ reusable table
+import {
+  DataTableCard,
+  DataTableColumn,
+} from "@/app/components/DataTableCard"; // adjust path if needed
 
 type Maintenance = {
   id: string;
@@ -113,7 +109,6 @@ const priorityStyles: Record<Maintenance["priority"], string> = {
 export default function MaintenancePage() {
   const router = useRouter();
   const [items, setItems] = useState<Maintenance[]>(SAMPLE);
-  const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "all" | Maintenance["status"]
   >("all");
@@ -123,32 +118,19 @@ export default function MaintenancePage() {
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [openAssign, setOpenAssign] = useState<Maintenance | null>(null);
 
-  // simple column-visibility state like shadcn data-table
-  const [visibleColumns, setVisibleColumns] = useState({
-    status: true,
-    room: true,
-    issue: true,
-    priority: true,
-    assigned: true,
-    reported: true,
-  });
-
   const selectedIds = Object.keys(selected).filter((k) => selected[k]);
 
+  // apply only status + priority filters here;
+  // text search is handled inside DataTableCard
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
     return items.filter((it) => {
-      const hay = `${it.room} ${it.issue} ${it.assigned} ${
-        it.notes || ""
-      }`.toLowerCase();
-      const matchesQ = q === "" ? true : hay.includes(q);
       const matchesStatus =
         statusFilter === "all" ? true : it.status === statusFilter;
       const matchesPriority =
         priorityFilter === "all" ? true : it.priority === priorityFilter;
-      return matchesQ && matchesStatus && matchesPriority;
+      return matchesStatus && matchesPriority;
     });
-  }, [items, query, statusFilter, priorityFilter]);
+  }, [items, statusFilter, priorityFilter]);
 
   function toggleSelect(id: string) {
     setSelected((s) => ({ ...s, [id]: !s[id] }));
@@ -201,6 +183,106 @@ export default function MaintenancePage() {
     );
     return Array.from(map.entries());
   }, [items]);
+
+  // 👇 Columns config for DataTableCard (same layout style as reservations/housekeeping)
+  const columns: DataTableColumn<Maintenance>[] = [
+    {
+      id: "select",
+      label: "",
+  
+      cell: (it) => (
+        <input
+          type="checkbox"
+          aria-label={`Select ${it.id}`}
+          checked={!!selected[it.id]}
+          onChange={() => toggleSelect(it.id)}
+          className="mt-0.5"
+        />
+      ),
+    },
+    {
+      id: "status",
+      label: "Status",
+      searchable: (it) => it.status,
+      cell: (it) => (
+        <span
+          className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded border ${statusStyles[it.status]}`}
+        >
+          {it.status}
+        </span>
+      ),
+    },
+    {
+      id: "room",
+      label: "Room",
+      searchable: (it) => it.room,
+      cell: (it) => <span>Room {it.room}</span>,
+    },
+    {
+      id: "issue",
+      label: "Issue",
+      searchable: (it) => `${it.issue} ${it.notes || ""}`,
+      cell: (it) => (
+        <div>
+          <div className="font-medium">{it.issue}</div>
+          {it.notes && (
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+              {it.notes}
+            </p>
+          )}
+        </div>
+      ),
+    },
+    {
+      id: "priority",
+      label: "Priority",
+      searchable: (it) => it.priority,
+      cell: (it) => (
+        <div className="flex flex-col gap-2">
+          <span
+            className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded border ${priorityStyles[it.priority]}`}
+          >
+            {it.priority}
+          </span>
+          <Select
+            value={it.priority}
+            onValueChange={(v) => changePriority(it.id, v as any)}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue placeholder="Priority" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Low">Low</SelectItem>
+              <SelectItem value="Medium">Medium</SelectItem>
+              <SelectItem value="High">High</SelectItem>
+              <SelectItem value="Critical">Critical</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      ),
+    },
+    {
+      id: "assigned",
+      label: "Assigned",
+      searchable: (it) => it.assigned,
+      cell: (it) => <div className="font-medium">{it.assigned}</div>,
+    },
+    {
+      id: "reported",
+      label: "Reported",
+      searchable: (it) => it.reportedAt,
+      cell: (it) => (
+        <span
+          className="text-xs text-muted-foreground"
+          suppressHydrationWarning
+        >
+          {new Date(it.reportedAt).toLocaleString("en-GB", {
+            timeZone: "UTC",
+          })}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <main className="">
@@ -256,296 +338,40 @@ export default function MaintenancePage() {
         </div>
       </div>
 
-      {/* Main layout: left data-table, right sidebar */}
+      {/* Main layout: table + sidebar */}
       <div className="flex flex-col gap-4">
-        {/* LEFT: Data table */}
-        <div className="">
-          <Card className="overflow-hidden">
-            <CardHeader className="pb-3">
-              <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
-                {/* Filter input with icon button (like screenshot) */}
-                <div className="relative w-full sm:w-72">
-                  <Input
-                    placeholder="Filter rooms, issues, technicians..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    className="pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                  >
-                    <SlidersHorizontal className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {/* Columns dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="ml-auto inline-flex items-center gap-1"
-                    >
-                      Columns
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuCheckboxItem
-                      checked={visibleColumns.status}
-                      onCheckedChange={(v) =>
-                        setVisibleColumns((c) => ({
-                          ...c,
-                          status: !!v,
-                        }))
-                      }
-                    >
-                      Status
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={visibleColumns.room}
-                      onCheckedChange={(v) =>
-                        setVisibleColumns((c) => ({
-                          ...c,
-                          room: !!v,
-                        }))
-                      }
-                    >
-                      Room
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={visibleColumns.issue}
-                      onCheckedChange={(v) =>
-                        setVisibleColumns((c) => ({
-                          ...c,
-                          issue: !!v,
-                        }))
-                      }
-                    >
-                      Issue
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={visibleColumns.priority}
-                      onCheckedChange={(v) =>
-                        setVisibleColumns((c) => ({
-                          ...c,
-                          priority: !!v,
-                        }))
-                      }
-                    >
-                      Priority
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={visibleColumns.assigned}
-                      onCheckedChange={(v) =>
-                        setVisibleColumns((c) => ({
-                          ...c,
-                          assigned: !!v,
-                        }))
-                      }
-                    >
-                      Assigned
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={visibleColumns.reported}
-                      onCheckedChange={(v) =>
-                        setVisibleColumns((c) => ({
-                          ...c,
-                          reported: !!v,
-                        }))
-                      }
-                    >
-                      Reported
-                    </DropdownMenuCheckboxItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </CardHeader>
-
-            <CardContent className="p-0">
-              <div className="w-full overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[40px]" />
-                      {visibleColumns.status && (
-                        <TableHead className="w-[120px]">Status</TableHead>
-                      )}
-                      {visibleColumns.room && (
-                        <TableHead className="min-w-[80px]">Room</TableHead>
-                      )}
-                      {visibleColumns.issue && (
-                        <TableHead className="min-w-[220px]">Issue</TableHead>
-                      )}
-                      {visibleColumns.priority && (
-                        <TableHead className="w-[140px]">Priority</TableHead>
-                      )}
-                      {visibleColumns.assigned && (
-                        <TableHead className="min-w-[120px]">
-                          Assigned
-                        </TableHead>
-                      )}
-                      {visibleColumns.reported && (
-                        <TableHead className="min-w-[180px]">
-                          Reported
-                        </TableHead>
-                      )}
-                      <TableHead className="w-[60px] text-right">
-                        {/* Actions */}
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-
-                  <TableBody>
-                    {filtered.map((it) => (
-                      <TableRow key={it.id} className="align-top">
-                        {/* checkbox */}
-                        <TableCell className="align-top pt-4">
-                          <input
-                            type="checkbox"
-                            aria-label={`Select ${it.id}`}
-                            checked={!!selected[it.id]}
-                            onChange={() => toggleSelect(it.id)}
-                            className="mt-1"
-                          />
-                        </TableCell>
-
-                        {visibleColumns.status && (
-                          <TableCell className="align-top pt-4">
-                            <span
-                              className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded border ${statusStyles[it.status]}`}
-                            >
-                              {it.status}
-                            </span>
-                          </TableCell>
-                        )}
-
-                        {visibleColumns.room && (
-                          <TableCell className="align-top pt-4">
-                            Room {it.room}
-                          </TableCell>
-                        )}
-
-                        {visibleColumns.issue && (
-                          <TableCell className="align-top pt-4">
-                            <div className="font-medium">{it.issue}</div>
-                            {it.notes && (
-                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                {it.notes}
-                              </p>
-                            )}
-                          </TableCell>
-                        )}
-
-                        {visibleColumns.priority && (
-                          <TableCell className="align-top pt-4">
-                            <div className="flex flex-col gap-2">
-                              <span
-                                className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded border ${priorityStyles[it.priority]}`}
-                              >
-                                {it.priority}
-                              </span>
-                              <Select
-                                value={it.priority}
-                                onValueChange={(v) =>
-                                  changePriority(it.id, v as any)
-                                }
-                              >
-                                <SelectTrigger className="h-8 text-xs">
-                                  <SelectValue placeholder="Priority" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Low">Low</SelectItem>
-                                  <SelectItem value="Medium">
-                                    Medium
-                                  </SelectItem>
-                                  <SelectItem value="High">High</SelectItem>
-                                  <SelectItem value="Critical">
-                                    Critical
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </TableCell>
-                        )}
-
-                        {visibleColumns.assigned && (
-                          <TableCell className="align-top pt-4 text-sm">
-                            <div className="font-medium">{it.assigned}</div>
-                          </TableCell>
-                        )}
-
-                        {visibleColumns.reported && (
-                          <TableCell className="align-top pt-4 text-xs text-muted-foreground">
-                            <span className="block text-[11px] uppercase tracking-wide mb-0.5">
-                              Reported
-                            </span>
-                            <span suppressHydrationWarning>
-                              {new Date(
-                                it.reportedAt,
-                              ).toLocaleString("en-GB", {
-                                timeZone: "UTC",
-                              })}
-                            </span>
-                          </TableCell>
-                        )}
-
-                        {/* Row actions menu (ellipsis) */}
-                        <TableCell className="align-top pt-3 text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 p-0"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-44">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => setOpenAssign(it)}
-                              >
-                                Assign technician
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => reopen(it.id)}
-                              >
-                                Reopen
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => markResolved(it.id)}
-                              >
-                                Mark resolved
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-
-                    {filtered.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={8} className="text-center py-6">
-                          <span className="text-sm text-muted-foreground">
-                            No requests match your filters.
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* LEFT: reusable data table */}
+        <DataTableCard
+          data={filtered}
+          columns={columns}
+          searchPlaceholder="Filter rooms, issues, technicians..."
+          renderRowActions={(it) => (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 p-0"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setOpenAssign(it)}>
+                  Assign technician
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => reopen(it.id)}>
+                  Reopen
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => markResolved(it.id)}>
+                  Mark resolved
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        />
 
         {/* RIGHT: sidebar (overview, technicians, quick actions) */}
         <aside className="">
